@@ -1,8 +1,7 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { MapPin, Clock, DollarSign, Star, Heart, Filter } from 'lucide-react'
+import { MapPin, Clock, DollarSign } from 'lucide-react'
 import { attractions } from '@/data/attractions'
 import { tripData } from '@/data/itinerary'
+import FavoriteButton from '@/components/ui/FavoriteButton'
 import CategoryBadge from '@/components/ui/CategoryBadge'
 import StarRating from '@/components/ui/StarRating'
 import { Attraction } from '@/types'
@@ -80,9 +79,7 @@ export default function ItineraryPage() {
                     <div className="absolute top-3 left-3 flex gap-2">
                       <CategoryBadge category={attraction.category} />
                     </div>
-                    <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/40 transition-colors">
-                      <Heart className="w-4 h-4 text-white" />
-                    </button>
+                    <FavoriteButton attractionId={attraction.id} className="absolute top-3 right-3" />
                     <div className="absolute bottom-3 left-4 right-4">
                       <div className="flex items-center gap-2 mb-1">
                         <StarRating rating={attraction.rating} />

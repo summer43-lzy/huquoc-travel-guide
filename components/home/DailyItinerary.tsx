@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronDown, MapPin, Clock, DollarSign, Star, Heart } from 'lucide-react'
+import { ChevronDown, MapPin, Clock, DollarSign } from 'lucide-react'
 import { TripOverview } from '@/types'
 import CategoryBadge from '@/components/ui/CategoryBadge'
+import FavoriteButton from '@/components/ui/FavoriteButton'
 import { cn } from '@/lib/utils'
 
 const dayAccentColors = [
@@ -82,9 +83,7 @@ export default function DailyItinerary({ trip }: { trip: TripOverview }) {
                           <div className="absolute top-3 left-3">
                             <CategoryBadge category={attraction.category} />
                           </div>
-                          <button className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/40 transition-colors">
-                            <Heart className="w-3.5 h-3.5 text-white" />
-                          </button>
+                          <FavoriteButton attractionId={attraction.id} className="absolute top-3 right-3" />
                           <div className="absolute bottom-3 left-3 right-3">
                             <h4 className="font-display font-bold text-white text-base leading-tight">{attraction.name}</h4>
                           </div>
