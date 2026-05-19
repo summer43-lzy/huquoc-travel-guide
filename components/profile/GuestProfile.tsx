@@ -46,7 +46,7 @@ function TripStatusBanner({ favCount }: { favCount: number }) {
           <div className="text-right">
             <Plane className="w-10 h-10 text-white/30 mb-2" />
             <p className="text-ocean-200 text-xs">已收藏 {favCount} 个景点</p>
-            <p className="text-ocean-200 text-xs mt-0.5">希尔顿度假村 · 4天3晚</p>
+            <p className="text-ocean-200 text-xs mt-0.5">拉菲斯塔·希尔顿 · 4天3晚</p>
           </div>
         </div>
         {/* Prep checklist */}
@@ -131,15 +131,29 @@ function TripStatusBanner({ favCount }: { favCount: number }) {
 function ShareButton() {
   const [copied, setCopied] = useState(false)
 
-  function share() {
+  async function share() {
     const url = window.location.origin
-    if (navigator.share) {
-      navigator.share({ title: '富国岛旅行指南', url })
-    } else {
-      navigator.clipboard.writeText(url).then(() => {
+    const shareData = {
+      title: '富国岛旅行指南',
+      text: '2026年6月5–8日 富国拉菲斯塔·希尔顿 10人专属旅行指南',
+      url,
+    }
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData)
+      } else {
+        throw new Error('no share api')
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return
+      try {
+        await navigator.clipboard.writeText(url)
         setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      })
+        setTimeout(() => setCopied(false), 2500)
+      } catch {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2500)
+      }
     }
   }
 
@@ -183,7 +197,7 @@ export default function GuestProfile() {
               </div>
               <div>
                 <h1 className="font-display text-2xl font-bold">我的旅行空间</h1>
-                <p className="text-ocean-200 text-sm mt-0.5">富国岛 · 2026年6月5–8日 · 希尔顿</p>
+                <p className="text-ocean-200 text-sm mt-0.5">富国岛 · 2026年6月5–8日 · 拉菲斯塔·希尔顿</p>
               </div>
             </div>
             <ShareButton />

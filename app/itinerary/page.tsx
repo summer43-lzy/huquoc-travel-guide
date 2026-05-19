@@ -35,8 +35,9 @@ export default function ItineraryPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Day-by-day quick nav */}
-        <div className="flex gap-3 overflow-x-auto pb-2 mb-10 scrollbar-hide">
+        {/* Day-by-day quick nav — sticky below header on mobile */}
+        <div className="sticky top-16 z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 bg-stone-50/95 backdrop-blur-sm border-b border-stone-100 pt-3 pb-2 mb-8">
+        <div className="flex gap-3 overflow-x-auto scrollbar-hide">
           {tripData.days.map(day => (
             <a
               key={day.day}
@@ -47,6 +48,7 @@ export default function ItineraryPage() {
               <span className="truncate max-w-28 block">{day.title.split('·')[0].trim()}</span>
             </a>
           ))}
+        </div>
         </div>
 
         {/* Top 10 Restaurants */}

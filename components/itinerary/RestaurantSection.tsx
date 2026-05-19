@@ -53,7 +53,7 @@ export default function RestaurantSection() {
           <p className="text-ocean-600 font-semibold text-xs tracking-widest uppercase mb-1">Restaurant Guide</p>
           <h2 className="font-display text-3xl font-bold text-stone-900">当地 TOP 10 餐厅推荐</h2>
           <p className="text-stone-500 text-sm mt-1.5">
-            精选距希尔顿酒店最具代表性的 10 家餐厅 · 结合 Google 评分与距离
+            精选距拉菲斯塔·希尔顿酒店最具代表性的 10 家餐厅 · 结合 Google 评分与距离
           </p>
         </div>
       </div>
@@ -88,7 +88,7 @@ export default function RestaurantSection() {
                 )}
               >
                 <span className="flex items-center gap-1.5">
-                  <Navigation className="w-3.5 h-3.5" /> 按距离（从希尔顿）
+                  <Navigation className="w-3.5 h-3.5" /> 按距离（从拉菲斯塔）
                 </span>
               </button>
             </div>

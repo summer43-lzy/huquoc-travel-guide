@@ -1,3 +1,5 @@
+import PhuQuocMaps from '@/components/destination/PhuQuocMaps'
+
 const infoCards = [
   {
     emoji: '🌍',
@@ -102,49 +104,13 @@ export default function DestinationPage() {
             <p className="text-stone-400 text-sm mt-1">富国岛在越南的位置 · 岛屿详细地图</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Regional context map */}
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-              <div className="px-4 pt-4 pb-2">
-                <p className="font-semibold text-stone-700 text-sm">富国岛在越南的位置</p>
-                <p className="text-xs text-stone-400 mt-0.5">越南西南端，泰国湾，毗邻柬埔寨</p>
-              </div>
-              <iframe
-                title="富国岛区域位置图"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=99.0%2C7.5%2C109.5%2C15.5&layer=mapnik&marker=10.2178%2C103.9742"
-                className="w-full"
-                style={{ height: '320px', border: 0 }}
-                loading="lazy"
-              />
-              <div className="px-4 py-2.5 bg-stone-50 border-t border-stone-100 text-xs text-stone-400">
-                © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" className="underline">OpenStreetMap</a> contributors
-              </div>
-            </div>
-
-            {/* Island detail map */}
-            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-              <div className="px-4 pt-4 pb-2">
-                <p className="font-semibold text-stone-700 text-sm">富国岛详细地图</p>
-                <p className="text-xs text-stone-400 mt-0.5">岛屿地形、主要城镇与道路分布</p>
-              </div>
-              <iframe
-                title="富国岛详细地图"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=103.84%2C9.97%2C104.12%2C10.52&layer=mapnik"
-                className="w-full"
-                style={{ height: '320px', border: 0 }}
-                loading="lazy"
-              />
-              <div className="px-4 py-2.5 bg-stone-50 border-t border-stone-100 text-xs text-stone-400">
-                © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" className="underline">OpenStreetMap</a> contributors
-              </div>
-            </div>
-          </div>
+          <PhuQuocMaps />
 
           {/* Key locations reference */}
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { name: '迪淘（主城区）', desc: '夜市、餐厅集中地' },
-              { name: '白大湾 Bai Dai', desc: '希尔顿所在，北部海滩' },
+              { name: '白大湾 Bai Dai', desc: '拉菲斯塔酒店所在，北部海滩' },
               { name: '星海滩 Bai Sao', desc: '南部最美白沙滩' },
               { name: '安泰岛 An Thoi', desc: '缆车出发点' },
             ].map(loc => (
