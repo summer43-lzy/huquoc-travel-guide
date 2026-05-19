@@ -109,10 +109,10 @@ export default function DestinationPage() {
           {/* Key locations reference */}
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { name: '迪淘（主城区）', desc: '夜市、餐厅集中地' },
-              { name: '白大湾 Bai Dai', desc: '拉菲斯塔酒店所在，北部海滩' },
-              { name: '星海滩 Bai Sao', desc: '南部最美白沙滩' },
-              { name: '安泰岛 An Thoi', desc: '缆车出发点' },
+              { name: '迪淘 Dương Đông', desc: '主城区，夜市·餐厅集中地' },
+              { name: '长滩南段 Long Beach', desc: '拉菲斯塔酒店所在，南部海岸' },
+              { name: '星海滩 Bãi Sao', desc: '南部最美白沙滩，能见度极高' },
+              { name: '安泰岛 An Thới', desc: '南端渡口·缆车出发点' },
             ].map(loc => (
               <div key={loc.name} className="bg-white rounded-xl border border-stone-100 shadow-sm p-3">
                 <p className="font-semibold text-stone-800 text-xs">{loc.name}</p>

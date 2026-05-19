@@ -21,7 +21,7 @@ export interface Restaurant {
   reviews?: { author: string; text: string; rating: number }[]
 }
 
-// Distances calculated from Hilton Phu Quoc Ixora Resort (Bai Dai, Ganh Dau)
+// Distances calculated from La Festa Phu Quoc, Curio Collection by Hilton (Long Beach south, Dương Tơ)
 export const restaurants: Restaurant[] = [
   {
     id: 'seasense-hilton',
@@ -30,6 +30,7 @@ export const restaurants: Restaurant[] = [
     nameEn: 'SeaSense Restaurant',
     cuisine: '海鲜',
     distanceKm: 0,
+    // At the resort
     googleRating: 4.8,
     googleReviews: 1240,
     priceRange: '¥¥¥',
@@ -53,7 +54,7 @@ export const restaurants: Restaurant[] = [
     name: '翁朗海滩餐吧',
     nameEn: 'Ong Lang Beach Bar & Restaurant',
     cuisine: '海鲜',
-    distanceKm: 4.2,
+    distanceKm: 26.0,
     googleRating: 4.7,
     googleReviews: 876,
     priceRange: '¥¥',
@@ -77,7 +78,7 @@ export const restaurants: Restaurant[] = [
     name: 'Itaca 地中海风情餐厅',
     nameEn: 'Itaca Lounge & Restaurant',
     cuisine: '西餐',
-    distanceKm: 8.5,
+    distanceKm: 20.0,
     googleRating: 4.7,
     googleReviews: 654,
     priceRange: '¥¥¥',
@@ -101,7 +102,7 @@ export const restaurants: Restaurant[] = [
     name: 'Chill 亚洲融合餐厅',
     nameEn: 'Chill Restaurant & Bar',
     cuisine: '融合料理',
-    distanceKm: 10.3,
+    distanceKm: 8.0,
     googleRating: 4.6,
     googleReviews: 1102,
     priceRange: '¥¥',
@@ -125,7 +126,7 @@ export const restaurants: Restaurant[] = [
     name: '胡椒屋越南菜馆',
     nameEn: 'Pepper House Vietnamese',
     cuisine: '越南菜',
-    distanceKm: 5.8,
+    distanceKm: 24.0,
     googleRating: 4.6,
     googleReviews: 789,
     priceRange: '¥',
@@ -149,7 +150,7 @@ export const restaurants: Restaurant[] = [
     name: 'Chez Carole 法越精品餐厅',
     nameEn: 'Chez Carole',
     cuisine: '融合料理',
-    distanceKm: 20.1,
+    distanceKm: 10.0,
     googleRating: 4.8,
     googleReviews: 2341,
     priceRange: '¥¥¥',
@@ -173,7 +174,7 @@ export const restaurants: Restaurant[] = [
     name: 'The Shack 海滨小屋',
     nameEn: 'The Shack Beach Bar & Restaurant',
     cuisine: '海鲜',
-    distanceKm: 13.7,
+    distanceKm: 7.0,
     googleRating: 4.5,
     googleReviews: 934,
     priceRange: '¥¥',
@@ -197,7 +198,7 @@ export const restaurants: Restaurant[] = [
     name: 'Ganesh 印度餐厅',
     nameEn: 'Ganesh Indian Restaurant',
     cuisine: '印度菜',
-    distanceKm: 21.5,
+    distanceKm: 9.0,
     googleRating: 4.6,
     googleReviews: 1567,
     priceRange: '¥¥',
@@ -221,7 +222,7 @@ export const restaurants: Restaurant[] = [
     name: '迪淘港口海鲜街',
     nameEn: 'Duong Dong Seafood Street',
     cuisine: '街头小吃',
-    distanceKm: 22.0,
+    distanceKm: 10.0,
     googleRating: 4.4,
     googleReviews: 3456,
     priceRange: '¥',
@@ -245,7 +246,7 @@ export const restaurants: Restaurant[] = [
     name: '芒果湾度假餐厅',
     nameEn: 'Mango Bay Resort Restaurant',
     cuisine: '越南菜',
-    distanceKm: 6.1,
+    distanceKm: 24.5,
     googleRating: 4.5,
     googleReviews: 512,
     priceRange: '¥¥',
