@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react'
 import { Heart, CheckCircle } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { toggleFavorite, isFavorite } from '@/lib/localStorage'
+import { toggleFavoriteDb, isFavoriteDb } from '@/lib/supabase/db'
+import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
+import type { User } from '@supabase/supabase-js'
 
 function FavoriteToast({ visible }: { visible: boolean }) {
   if (typeof window === 'undefined') return null
@@ -18,10 +21,7 @@ function FavoriteToast({ visible }: { visible: boolean }) {
       <div className="flex items-center gap-3 bg-stone-900 text-white px-5 py-3 rounded-2xl shadow-xl text-sm whitespace-nowrap">
         <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
         <span>已收藏！可在</span>
-        <a
-          href="/profile"
-          className="font-semibold text-ocean-300 hover:text-ocean-200 underline underline-offset-2"
-        >
+        <a href="/profile" className="font-semibold text-ocean-300 hover:text-ocean-200 underline underline-offset-2">
           个人中心
         </a>
         <span>查看</span>
@@ -33,24 +33,46 @@ function FavoriteToast({ visible }: { visible: boolean }) {
 
 export default function FavoriteButton({
   attractionId,
+  contentType = 'attraction',
+  contentId,
   className,
 }: {
-  attractionId: string
+  attractionId?: string
+  contentType?: string
+  contentId?: string
   className?: string
 }) {
+  const id = contentId ?? attractionId ?? ''
   const [faved, setFaved] = useState(false)
   const [showToast, setShowToast] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    setFaved(isFavorite(attractionId))
-  }, [attractionId])
+    const sb = createClient()
+    sb.auth.getUser().then(({ data }) => setUser(data.user))
+    const { data: { subscription } } = sb.auth.onAuthStateChange((_, session) => setUser(session?.user ?? null))
+    return () => subscription.unsubscribe()
+  }, [])
 
-  function handleClick(e: React.MouseEvent) {
+  useEffect(() => {
+    if (!id) return
+    if (user) {
+      isFavoriteDb(user.id, contentType, id).then(setFaved)
+    } else {
+      setFaved(isFavorite(id))
+    }
+  }, [id, user, contentType])
+
+  async function handleClick(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    const newState = toggleFavorite(attractionId)
+    let newState: boolean
+    if (user) {
+      newState = await toggleFavoriteDb(user.id, contentType, id)
+    } else {
+      newState = toggleFavorite(id)
+    }
     setFaved(newState)
-
     if (newState) {
       setShowToast(true)
       setTimeout(() => setShowToast(false), 2500)
@@ -63,9 +85,7 @@ export default function FavoriteButton({
         onClick={handleClick}
         className={cn(
           'w-8 h-8 rounded-full flex items-center justify-center transition-all',
-          faved
-            ? 'bg-rose-500 text-white shadow-md'
-            : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/40',
+          faved ? 'bg-rose-500 text-white shadow-md' : 'bg-white/20 backdrop-blur-sm text-white hover:bg-white/40',
           className
         )}
         title={faved ? '取消收藏' : '收藏'}

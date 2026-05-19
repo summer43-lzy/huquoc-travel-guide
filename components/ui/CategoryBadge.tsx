@@ -10,8 +10,8 @@ const config: Record<Attraction['category'], { label: string; color: string }> =
   shopping:      { label: '购物',   color: 'bg-pink-100 text-pink-700' },
 }
 
-export default function CategoryBadge({ category }: { category: Attraction['category'] }) {
-  const { label, color } = config[category]
+export default function CategoryBadge({ category }: { category: string }) {
+  const { label, color } = config[category as Attraction['category']] ?? { label: category, color: 'bg-stone-100 text-stone-600' }
   return (
     <span className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', color)}>
       {label}

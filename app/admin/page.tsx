@@ -1,10 +1,61 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { CheckCircle, Trash2, MessageSquare, RefreshCw, MapPin, Calendar, Users, FileText, Edit, Plus, Image } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { getPendingComments, approveComment, deleteComment, type Comment } from '@/lib/supabase/db'
 import { attractions } from '@/data/attractions'
 import { tripData } from '@/data/itinerary'
-import { Edit, Plus, Trash2, Image, FileText, MapPin, Calendar, Users } from 'lucide-react'
 import CategoryBadge from '@/components/ui/CategoryBadge'
 import StarRating from '@/components/ui/StarRating'
+import type { User } from '@supabase/supabase-js'
+
+const ADMIN_EMAIL = 'zhangsummer43@gmail.com'
+
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 60) return `${mins}分钟前`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}小时前`
+  return `${Math.floor(hours / 24)}天前`
+}
 
 export default function AdminPage() {
+  const [user, setUser] = useState<User | null | undefined>(undefined)
+  const [pendingComments, setPendingComments] = useState<Comment[]>([])
+  const [loadingComments, setLoadingComments] = useState(true)
+
+  useEffect(() => {
+    const sb = createClient()
+    sb.auth.getUser().then(({ data }) => {
+      setUser(data.user)
+      if (data.user?.email === ADMIN_EMAIL) {
+        getPendingComments().then(c => { setPendingComments(c); setLoadingComments(false) })
+      } else {
+        setLoadingComments(false)
+      }
+    })
+  }, [])
+
+  async function handleApprove(id: string) {
+    await approveComment(id)
+    setPendingComments(prev => prev.filter(c => c.id !== id))
+  }
+
+  async function handleDelete(id: string) {
+    await deleteComment(id)
+    setPendingComments(prev => prev.filter(c => c.id !== id))
+  }
+
+  if (user === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-stone-50">
+        <div className="w-8 h-8 border-2 border-ocean-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-stone-50">
       {/* Header */}
@@ -17,6 +68,53 @@ export default function AdminPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        {/* Comment moderation — admin only */}
+        {user?.email === ADMIN_EMAIL && (
+          <section className="mb-10">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-ocean-600" />
+                <h2 className="font-display text-xl font-bold text-stone-900">待审核评论</h2>
+                {pendingComments.length > 0 && (
+                  <span className="bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{pendingComments.length}</span>
+                )}
+              </div>
+              <button
+                onClick={() => { setLoadingComments(true); getPendingComments().then(c => { setPendingComments(c); setLoadingComments(false) }) }}
+                className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-700 transition-colors"
+              >
+                <RefreshCw className="w-4 h-4" />刷新
+              </button>
+            </div>
+            {loadingComments ? (
+              <div className="flex justify-center py-8"><div className="w-6 h-6 border-2 border-ocean-600 border-t-transparent rounded-full animate-spin" /></div>
+            ) : pendingComments.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-stone-100 p-8 text-center text-stone-400 text-sm">✅ 没有待审核的评论</div>
+            ) : (
+              <div className="space-y-3">
+                {pendingComments.map(c => (
+                  <div key={c.id} className="bg-white rounded-2xl border border-stone-100 shadow-sm p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs bg-stone-100 text-stone-600 px-2 py-0.5 rounded-full font-medium">{c.content_type} · {c.content_id}</span>
+                      <span className="text-xs text-stone-400">{timeAgo(c.created_at)}</span>
+                    </div>
+                    <p className="text-stone-700 text-sm leading-relaxed mb-3">{c.body}</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleApprove(c.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-xl transition-colors">
+                        <CheckCircle className="w-4 h-4" />通过
+                      </button>
+                      <button onClick={() => handleDelete(c.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-stone-200 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-600 text-stone-600 text-sm font-medium rounded-xl transition-colors">
+                        <Trash2 className="w-4 h-4" />删除
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
           {[

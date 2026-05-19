@@ -60,6 +60,9 @@ export default function LoginModal({ onClose }: Props) {
     if (error || !data.session) {
       setError('验证码错误或已过期，请重新发送')
     } else {
+      // Sync session into the SSR client so Navbar picks it up after reload
+      const mainClient = createClient()
+      await mainClient.auth.setSession(data.session)
       setStep('success')
       setTimeout(() => {
         onClose()

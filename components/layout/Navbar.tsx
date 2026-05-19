@@ -115,7 +115,7 @@ export default function Navbar() {
                 className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-ocean-600 text-white text-sm font-medium hover:bg-ocean-700 transition-colors"
               >
                 <User className="w-4 h-4" />
-                <span className="hidden sm:block">Google 登录</span>
+                <span className="hidden sm:block">登录</span>
               </button>
             )}
           </div>
