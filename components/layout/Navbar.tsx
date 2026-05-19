@@ -37,9 +37,18 @@ export default function Navbar() {
   }
 
   async function handleSignIn() {
+    // Detect WeChat / in-app browser — Google OAuth blocks WebView
+    const ua = navigator.userAgent
+    const isWebView = /MicroMessenger|WeiBo|QQ\/|FBAN|FBAV|Instagram/i.test(ua)
+    if (isWebView) {
+      alert('请用 Safari 或 Chrome 浏览器打开此页面后再登录，微信内置浏览器不支持 Google 登录。')
+      return
+    }
+
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: `${window.location.origin}${basePath}/auth/callback` },
     })
   }
 
