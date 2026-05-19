@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Trash2, Plus, X, Image as ImageIcon, Upload, Loader2 } from 'lucide-react'
+import { Trash2, Plus, X, Image as ImageIcon, Upload, Loader2, Globe, Lock } from 'lucide-react'
 import { getMemories, addMemory, removeMemory, type Memory } from '@/lib/localStorage'
 import { createClient } from '@/lib/supabase/client'
+import { addPublicPhoto } from '@/lib/supabase/db'
 
 const DAY_OPTIONS = [
   { value: 1, label: 'Day 1 · 6月5日' },
@@ -16,7 +17,9 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
   const [previewUrl, setPreviewUrl] = useState('')
   const [caption, setCaption] = useState('')
   const [day, setDay] = useState(1)
+  const [isPublic, setIsPublic] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -43,10 +46,19 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
     setUploading(false)
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!previewUrl) return
+    setSaving(true)
     addMemory({ url: previewUrl, caption: caption.trim(), day })
+    if (isPublic) {
+      const sb = createClient()
+      const { data: { user } } = await sb.auth.getUser()
+      if (user) {
+        await addPublicPhoto(user.id, previewUrl, caption.trim(), day)
+      }
+    }
+    setSaving(false)
     onAdd()
     onClose()
   }
@@ -126,12 +138,40 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
             </div>
           </div>
 
+          {/* Visibility */}
+          <div>
+            <label className="text-xs font-semibold text-stone-500 mb-1.5 block">共享设置</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setIsPublic(false)}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border text-xs font-medium transition-colors ${
+                  !isPublic ? 'bg-stone-900 border-stone-900 text-white' : 'border-stone-200 text-stone-600 hover:border-stone-300'
+                }`}
+              >
+                <Lock className="w-3.5 h-3.5" />
+                仅自己可见
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsPublic(true)}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border text-xs font-medium transition-colors ${
+                  isPublic ? 'bg-ocean-600 border-ocean-600 text-white' : 'border-stone-200 text-stone-600 hover:border-ocean-300'
+                }`}
+              >
+                <Globe className="w-3.5 h-3.5" />
+                分享到公共相册
+              </button>
+            </div>
+            {isPublic && <p className="text-xs text-ocean-600 mt-1">照片将显示在旅行回忆页面的公共相册中</p>}
+          </div>
+
           <button
             type="submit"
-            disabled={!previewUrl || uploading}
+            disabled={!previewUrl || uploading || saving}
             className="w-full py-2.5 bg-ocean-600 hover:bg-ocean-500 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors text-sm"
           >
-            添加到相册
+            {saving ? '保存中...' : '添加到相册'}
           </button>
         </form>
       </div>

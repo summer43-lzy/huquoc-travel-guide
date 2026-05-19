@@ -200,6 +200,62 @@ export async function hasFootprint(userId: string, contentType: string, contentI
   return !!data
 }
 
+// ── Photos ────────────────────────────────────────────────────────────────────
+
+export interface Photo {
+  id: string
+  user_id: string
+  url: string
+  caption: string | null
+  day: number | null
+  is_public: boolean
+  created_at: string
+}
+
+export async function addPublicPhoto(userId: string, url: string, caption: string, day: number) {
+  const sb = createClient()
+  const { data, error } = await sb.from('photos').insert({
+    user_id: userId, url, caption: caption || null, day, is_public: true,
+  }).select().single()
+  if (error) return null
+  return data as Photo
+}
+
+export async function getPublicPhotos(): Promise<Photo[]> {
+  const sb = createClient()
+  const { data } = await sb.from('photos').select('*').eq('is_public', true).order('created_at', { ascending: false })
+  return (data ?? []) as Photo[]
+}
+
+export async function togglePhotoLike(userId: string, photoId: string): Promise<boolean> {
+  const sb = createClient()
+  const { data } = await sb.from('photo_likes').select('id').eq('user_id', userId).eq('photo_id', photoId).maybeSingle()
+  if (data) {
+    await sb.from('photo_likes').delete().eq('id', data.id)
+    return false
+  }
+  await sb.from('photo_likes').insert({ user_id: userId, photo_id: photoId })
+  return true
+}
+
+export async function getPhotoLikeCounts(photoIds: string[]): Promise<Record<string, number>> {
+  if (photoIds.length === 0) return {}
+  const sb = createClient()
+  const { data } = await sb.from('photo_likes').select('photo_id').in('photo_id', photoIds)
+  const counts: Record<string, number> = {}
+  for (const row of data ?? []) {
+    counts[row.photo_id] = (counts[row.photo_id] ?? 0) + 1
+  }
+  return counts
+}
+
+export async function getUserLikedPhotos(userId: string, photoIds: string[]): Promise<Set<string>> {
+  if (photoIds.length === 0) return new Set()
+  const sb = createClient()
+  const { data } = await sb.from('photo_likes').select('photo_id').eq('user_id', userId).in('photo_id', photoIds)
+  return new Set((data ?? []).map((r: any) => r.photo_id))
+}
+
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
 export async function getUserStats(userId: string) {

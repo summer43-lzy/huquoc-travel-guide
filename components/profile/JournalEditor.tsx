@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { X, Upload, Globe, Lock, Loader2 } from 'lucide-react'
+import { X, Upload, Globe, Lock, Loader2, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { createJournal, updateJournal, type Journal } from '@/lib/supabase/db'
 import { attractions } from '@/data/attractions'
@@ -105,7 +105,19 @@ export default function JournalEditor({ userId, existing, onSaved, onCancel }: P
 
           {/* Body */}
           <div>
-            <label className="text-xs font-semibold text-stone-500 block mb-1.5">内容</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-semibold text-stone-500">内容</label>
+              {!body && (
+                <button
+                  type="button"
+                  onClick={() => setBody('【今天的行程】\n\n\n【最难忘的瞬间】\n\n\n【给大家的建议】\n\n')}
+                  className="flex items-center gap-1 text-xs text-ocean-500 hover:text-ocean-700 transition-colors"
+                >
+                  <FileText className="w-3 h-3" />
+                  使用模板
+                </button>
+              )}
+            </div>
             <textarea
               value={body}
               onChange={e => setBody(e.target.value)}

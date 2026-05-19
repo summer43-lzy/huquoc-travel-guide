@@ -1,6 +1,7 @@
 import MemoriesWall from '@/components/memories/MemoriesWall'
+import CommunityAlbum from '@/components/memories/CommunityAlbum'
 import { AllPublicJournals } from '@/components/ui/PublicJournals'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, Camera } from 'lucide-react'
 
 export default function MemoriesPage() {
   return (
@@ -22,6 +23,16 @@ export default function MemoriesPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <MemoriesWall />
+
+        {/* Community album section */}
+        <div className="mt-12 border-t border-stone-200 pt-10">
+          <div className="flex items-center gap-2 mb-6">
+            <Camera className="w-6 h-6 text-ocean-500" />
+            <h2 className="font-display text-2xl font-bold text-stone-900">公共相册</h2>
+            <span className="text-stone-400 text-sm ml-1">· 大家分享的旅行瞬间</span>
+          </div>
+          <CommunityAlbum />
+        </div>
 
         {/* Public journals section */}
         <div className="mt-12 border-t border-stone-200 pt-10">
