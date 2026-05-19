@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Trash2, Plus, X, Image as ImageIcon } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Trash2, Plus, X, Image as ImageIcon, Upload, Loader2 } from 'lucide-react'
 import { getMemories, addMemory, removeMemory, type Memory } from '@/lib/localStorage'
+import { createClient } from '@/lib/supabase/client'
 
 const DAY_OPTIONS = [
   { value: 1, label: 'Day 1 · 6月5日' },
@@ -12,15 +13,40 @@ const DAY_OPTIONS = [
 ]
 
 function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => void }) {
-  const [url, setUrl] = useState('')
+  const [previewUrl, setPreviewUrl] = useState('')
   const [caption, setCaption] = useState('')
   const [day, setDay] = useState(1)
-  const [preview, setPreview] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setError('')
+    setUploading(true)
+
+    const sb = createClient()
+    const { data: { user } } = await sb.auth.getUser()
+    const folder = user ? user.id : 'anonymous'
+    const ext = file.name.split('.').pop()
+    const path = `${folder}/memories/${Date.now()}.${ext}`
+
+    const { error: uploadError } = await sb.storage.from('journals').upload(path, file, { upsert: true })
+    if (uploadError) {
+      setError('上传失败，请重试')
+      setUploading(false)
+      return
+    }
+    const { data } = sb.storage.from('journals').getPublicUrl(path)
+    setPreviewUrl(data.publicUrl)
+    setUploading(false)
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!url.trim()) return
-    addMemory({ url: url.trim(), caption: caption.trim(), day })
+    if (!previewUrl) return
+    addMemory({ url: previewUrl, caption: caption.trim(), day })
     onAdd()
     onClose()
   }
@@ -36,30 +62,35 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          {/* Photo upload */}
           <div>
-            <label className="text-xs font-semibold text-stone-500 mb-1.5 block">图片 URL *</label>
-            <input
-              type="url"
-              value={url}
-              onChange={e => { setUrl(e.target.value); setPreview(false) }}
-              placeholder="https://..."
-              className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-ocean-400"
-              required
-            />
-            {url && (
+            <label className="text-xs font-semibold text-stone-500 mb-1.5 block">选择照片 *</label>
+            {previewUrl ? (
+              <div className="relative rounded-xl overflow-hidden h-40 bg-stone-100">
+                <img src={previewUrl} alt="预览" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => { setPreviewUrl(''); if (fileRef.current) fileRef.current.value = '' }}
+                  className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1.5"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
               <button
                 type="button"
-                onClick={() => setPreview(p => !p)}
-                className="mt-1.5 text-xs text-ocean-600 hover:underline"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                className="w-full h-32 border-2 border-dashed border-stone-200 rounded-xl flex flex-col items-center justify-center gap-2 text-stone-400 hover:border-ocean-300 hover:text-ocean-500 transition-colors"
               >
-                {preview ? '隐藏预览' : '预览图片'}
+                {uploading
+                  ? <><Loader2 className="w-6 h-6 animate-spin" /><span className="text-sm">上传中...</span></>
+                  : <><Upload className="w-6 h-6" /><span className="text-sm">点击选择照片</span><span className="text-xs">支持 JPG、PNG、HEIC</span></>
+                }
               </button>
             )}
-            {preview && url && (
-              <div className="mt-2 rounded-xl overflow-hidden h-32 bg-stone-100">
-                <img src={url} alt="preview" className="w-full h-full object-cover" onError={() => setPreview(false)} />
-              </div>
-            )}
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+            {error && <p className="text-xs text-rose-500 mt-1">{error}</p>}
           </div>
 
           <div>
@@ -97,7 +128,8 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
 
           <button
             type="submit"
-            className="w-full py-2.5 bg-ocean-600 hover:bg-ocean-500 text-white font-semibold rounded-xl transition-colors text-sm"
+            disabled={!previewUrl || uploading}
+            className="w-full py-2.5 bg-ocean-600 hover:bg-ocean-500 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors text-sm"
           >
             添加到相册
           </button>
@@ -174,7 +206,7 @@ export default function MemoriesWall() {
         <div>
           <h2 className="font-display text-2xl sm:text-3xl font-bold text-stone-900">旅行相册</h2>
           <p className="text-stone-500 text-sm mt-0.5">
-            粘贴图片链接，保存在本设备上
+            直接从手机/电脑上传照片
             {memories.length > 0 && <span className="ml-1">· 共 {memories.length} 张</span>}
           </p>
         </div>
@@ -232,7 +264,7 @@ export default function MemoriesWall() {
             {memories.length === 0 ? '还没有照片' : '这一天暂无照片'}
           </h3>
           <p className="text-stone-400 text-sm max-w-xs mx-auto">
-            粘贴图片链接即可添加，照片保存在本设备浏览器中
+            点击"添加照片"，直接从手机相册或电脑选择照片上传
           </p>
           {memories.length === 0 && (
             <button
