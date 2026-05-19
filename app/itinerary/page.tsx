@@ -1,4 +1,4 @@
-import { MapPin, Clock, DollarSign, Navigation } from 'lucide-react'
+import { MapPin, Clock, DollarSign, Navigation, ExternalLink } from 'lucide-react'
 import { attractions } from '@/data/attractions'
 import { tripData } from '@/data/itinerary'
 import FavoriteButton from '@/components/ui/FavoriteButton'
@@ -6,6 +6,7 @@ import CategoryBadge from '@/components/ui/CategoryBadge'
 import StarRating from '@/components/ui/StarRating'
 import AttractionRating from '@/components/ui/AttractionRating'
 import RestaurantSection from '@/components/itinerary/RestaurantSection'
+import DayOverviewCard from '@/components/itinerary/DayOverviewCard'
 import { Attraction } from '@/types'
 
 const categoryFilters: { value: Attraction['category'] | 'all'; label: string }[] = [
@@ -70,6 +71,8 @@ export default function ItineraryPage() {
               </div>
             </div>
 
+            <DayOverviewCard day={day} />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {day.attractions.map(attraction => (
                 <div
@@ -121,6 +124,20 @@ export default function ItineraryPage() {
                         <div className="flex items-start gap-1.5 col-span-2">
                           <MapPin className="w-3.5 h-3.5 text-rose-400 mt-0.5 flex-shrink-0" />
                           <span className="line-clamp-1">{attraction.address}</span>
+                        </div>
+                      )}
+                      {attraction.location && (
+                        <div className="col-span-2 mt-1">
+                          <a
+                            href={`https://maps.google.com/?q=${attraction.location.lat},${attraction.location.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 bg-ocean-50 hover:bg-ocean-100 text-ocean-700 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                          >
+                            <MapPin className="w-3 h-3" />
+                            Google Maps 导航
+                            <ExternalLink className="w-3 h-3 opacity-60" />
+                          </a>
                         </div>
                       )}
                     </div>

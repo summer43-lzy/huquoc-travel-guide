@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Star, MapPin, Clock, ChevronDown, Filter, Navigation, Quote } from 'lucide-react'
+import { Star, MapPin, Clock, ChevronDown, Filter, Navigation, Quote, ExternalLink, Utensils } from 'lucide-react'
 import { restaurants, type CuisineType } from '@/data/restaurants'
+import { tripData } from '@/data/itinerary'
+import OpenStatus from '@/components/ui/OpenStatus'
 import { cn } from '@/lib/utils'
 
 type SortKey = 'distance' | 'rating'
@@ -21,6 +23,61 @@ const priceLabel: Record<string, string> = {
   '¥': '实惠 < ¥100',
   '¥¥': '中档 ¥100–300',
   '¥¥¥': '高档 > ¥300',
+}
+
+// Map each trip day to recommended restaurant IDs based on that day's ending area
+const dayRecommendations: Record<number, { ids: string[]; reason: string }> = {
+  1: { ids: ['chez-carole', 'ganesh-indian', 'duong-dong-seafood'], reason: '今天结束于迪淘夜市周边，这几家就在附近' },
+  2: { ids: ['seasense-hilton', 'the-shack', 'chill-restaurant'], reason: '今天安泰夜市已涵盖晚餐，或回酒店附近放松用餐' },
+  3: { ids: ['chez-carole', 'ganesh-indian', 'chill-restaurant'], reason: '今天行程已安排 Chez Carole，也可选附近餐厅' },
+  4: { ids: ['seasense-hilton', 'the-shack'], reason: '出发日，在酒店或附近轻松用完最后一餐' },
+}
+
+function TonightRecommendation() {
+  const today = new Date()
+  const matchingDay = tripData.days.find(d => {
+    const dayDate = new Date(d.date)
+    return dayDate.toDateString() === today.toDateString()
+  })
+
+  if (!matchingDay) return null
+
+  const rec = dayRecommendations[matchingDay.day]
+  if (!rec) return null
+
+  const recRestaurants = rec.ids.map(id => restaurants.find(r => r.id === id)).filter(Boolean) as typeof restaurants
+
+  return (
+    <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 mb-6">
+      <div className="flex items-center gap-2 mb-3">
+        <Utensils className="w-4 h-4 text-amber-600" />
+        <p className="font-semibold text-amber-800 text-sm">今晚去哪吃？</p>
+        <span className="text-xs text-amber-600 bg-amber-100 rounded-full px-2 py-0.5">Day {matchingDay.day}</span>
+      </div>
+      <p className="text-xs text-stone-500 mb-3">{rec.reason}</p>
+      <div className="flex flex-wrap gap-2">
+        {recRestaurants.map(r => (
+          <a
+            key={r.id}
+            href={`https://maps.google.com/?q=${encodeURIComponent(r.address)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-white hover:bg-amber-50 border border-amber-100 hover:border-amber-300 rounded-xl px-3 py-2 transition-colors"
+          >
+            <div>
+              <p className="text-xs font-semibold text-stone-800 leading-tight">{r.name}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-amber-500 text-[10px]">★ {r.googleRating}</span>
+                <span className="text-stone-400 text-[10px]">{r.priceRange}</span>
+                <OpenStatus openHours={r.openHours} />
+              </div>
+            </div>
+            <ExternalLink className="w-3 h-3 text-stone-300 flex-shrink-0" />
+          </a>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 function StarRatingDisplay({ rating }: { rating: number }) {
@@ -48,7 +105,7 @@ export default function RestaurantSection() {
   return (
     <section className="mb-16">
       {/* Section header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
         <div>
           <p className="text-ocean-600 font-semibold text-xs tracking-widest uppercase mb-1">Restaurant Guide</p>
           <h2 className="font-display text-3xl font-bold text-stone-900">当地 TOP 10 餐厅推荐</h2>
@@ -58,10 +115,12 @@ export default function RestaurantSection() {
         </div>
       </div>
 
+      {/* Tonight recommendation */}
+      <TonightRecommendation />
+
       {/* Filters */}
       <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
-          {/* Sort toggle */}
           <div>
             <p className="text-xs font-semibold text-stone-500 mb-2 flex items-center gap-1.5">
               <Filter className="w-3.5 h-3.5" /> 排序方式
@@ -94,7 +153,6 @@ export default function RestaurantSection() {
             </div>
           </div>
 
-          {/* Cuisine filter */}
           <div className="sm:ml-auto">
             <p className="text-xs font-semibold text-stone-500 mb-2">按菜式筛选</p>
             <div className="flex flex-wrap gap-2">
@@ -174,6 +232,7 @@ export default function RestaurantSection() {
                     <Navigation className="w-3 h-3 text-ocean-500" />
                     {r.distanceKm === 0 ? '酒店内' : `距酒店 ${r.distanceKm} km`}
                   </span>
+                  <OpenStatus openHours={r.openHours} />
                 </div>
 
                 {/* Tags */}
@@ -186,6 +245,18 @@ export default function RestaurantSection() {
                 </div>
 
                 <p className="text-stone-500 text-xs leading-relaxed line-clamp-2">{r.description}</p>
+
+                {/* Maps button */}
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(r.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 mt-2 bg-ocean-50 hover:bg-ocean-100 text-ocean-700 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                >
+                  <MapPin className="w-3 h-3" />
+                  Google Maps 导航
+                  <ExternalLink className="w-3 h-3 opacity-60" />
+                </a>
               </div>
             </div>
 
@@ -214,7 +285,6 @@ export default function RestaurantSection() {
             {expanded === r.id && (
               <div className="border-t border-stone-50 px-4 py-4 bg-stone-50/60">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Signature dishes */}
                   <div>
                     <p className="text-xs font-semibold text-stone-700 mb-2">🍴 招牌菜</p>
                     <ul className="space-y-1">
@@ -227,7 +297,6 @@ export default function RestaurantSection() {
                     </ul>
                   </div>
 
-                  {/* Practical info + tips */}
                   <div>
                     <p className="text-xs font-semibold text-stone-700 mb-2">📋 实用信息</p>
                     <div className="space-y-1.5 mb-3">
