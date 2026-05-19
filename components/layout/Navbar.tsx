@@ -107,7 +107,9 @@ export default function Navbar() {
                     ) : (
                       <User className="w-4 h-4" />
                     )}
-                    <span className="hidden sm:block">{user.user_metadata?.name?.split(' ')[0] ?? '我的'}</span>
+                    <span className="hidden sm:block">
+                      {user.user_metadata?.name?.split(' ')[0] ?? '我的'} · 个人中心
+                    </span>
                   </Link>
                   <button
                     onClick={handleSignOut}
