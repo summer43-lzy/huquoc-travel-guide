@@ -2,7 +2,17 @@
 
 import { useState } from 'react'
 import { X, Mail } from 'lucide-react'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
+
+// Non-PKCE client for OTP — PKCE stores a verifier locally which breaks verifyOtp
+function createOtpClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { flowType: 'implicit', autoRefreshToken: true, persistSession: true } }
+  )
+}
 
 interface Props {
   onClose: () => void
@@ -22,7 +32,7 @@ export default function LoginModal({ onClose }: Props) {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const supabase = createClient()
+    const supabase = createOtpClient()
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { shouldCreateUser: true },
@@ -40,14 +50,14 @@ export default function LoginModal({ onClose }: Props) {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const supabase = createClient()
-    const { error } = await supabase.auth.verifyOtp({
+    const supabase = createOtpClient()
+    const { data, error } = await supabase.auth.verifyOtp({
       email,
       token: code.trim(),
-      type: 'magiclink',
+      type: 'email',
     })
     setLoading(false)
-    if (error) {
+    if (error || !data.session) {
       setError('验证码错误或已过期，请重新发送')
     } else {
       setStep('success')
