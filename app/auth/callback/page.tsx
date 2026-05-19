@@ -13,6 +13,7 @@ export default function AuthCallbackPage() {
     const code = new URLSearchParams(window.location.search).get('code')
 
     if (code) {
+      // PKCE flow (Google OAuth / magic link PKCE)
       supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
         if (error) {
           setMsg('登录失败，正在返回首页...')
@@ -21,11 +22,28 @@ export default function AuthCallbackPage() {
           router.replace('/profile')
         }
       })
-    } else {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        router.replace(session ? '/profile' : '/')
-      })
+      return
     }
+
+    // Implicit / hash flow (magic link default)
+    // Supabase browser client processes the hash automatically on init;
+    // listen for the SIGNED_IN event or poll getSession.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        router.replace('/profile')
+      }
+    })
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.replace('/profile')
+      } else if (!window.location.hash.includes('access_token')) {
+        setMsg('未检测到登录信息，正在返回首页...')
+        setTimeout(() => router.replace('/'), 2500)
+      }
+    })
+
+    return () => subscription.unsubscribe()
   }, [router])
 
   return (

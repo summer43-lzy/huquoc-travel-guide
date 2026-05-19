@@ -7,6 +7,7 @@ import { MapPin, User, Heart, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
+import LoginModal from '@/components/auth/LoginModal'
 
 const navLinks = [
   { href: '/', label: '首页' },
@@ -20,6 +21,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [showLogin, setShowLogin] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -36,23 +38,13 @@ export default function Navbar() {
     router.push('/')
   }
 
-  async function handleSignIn() {
-    // Detect WeChat / in-app browser — Google OAuth blocks WebView
-    const ua = navigator.userAgent
-    const isWebView = /MicroMessenger|WeiBo|QQ\/|FBAN|FBAV|Instagram/i.test(ua)
-    if (isWebView) {
-      alert('请用 Safari 或 Chrome 浏览器打开此页面后再登录，微信内置浏览器不支持 Google 登录。')
-      return
-    }
-
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}${basePath}/auth/callback` },
-    })
+  function handleSignIn() {
+    setShowLogin(true)
   }
 
   return (
+    <>
+    {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-stone-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -130,5 +122,6 @@ export default function Navbar() {
         </div>
       </div>
     </header>
+    </>
   )
 }
