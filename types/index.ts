@@ -27,6 +27,7 @@ export interface TripOverview {
   endDate: string
   totalDays: number
   groupSize: number
+  hotel?: string
   highlights: string[]
   days: DayItinerary[]
 }

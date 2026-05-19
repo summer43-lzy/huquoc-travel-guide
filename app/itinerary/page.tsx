@@ -4,6 +4,7 @@ import { tripData } from '@/data/itinerary'
 import FavoriteButton from '@/components/ui/FavoriteButton'
 import CategoryBadge from '@/components/ui/CategoryBadge'
 import StarRating from '@/components/ui/StarRating'
+import RestaurantSection from '@/components/itinerary/RestaurantSection'
 import { Attraction } from '@/types'
 
 const categoryFilters: { value: Attraction['category'] | 'all'; label: string }[] = [
@@ -47,6 +48,9 @@ export default function ItineraryPage() {
             </a>
           ))}
         </div>
+
+        {/* Top 10 Restaurants */}
+        <RestaurantSection />
 
         {/* Day sections */}
         {tripData.days.map(day => (
