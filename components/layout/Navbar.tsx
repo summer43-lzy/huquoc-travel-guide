@@ -1,10 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useState } from 'react'
-import { Menu, X, MapPin, User, Heart } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { Menu, X, MapPin, User, Heart, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 const navLinks = [
   { href: '/', label: '首页' },
@@ -15,7 +17,31 @@ const navLinks = [
 
 export default function Navbar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [user, setUser] = useState<SupabaseUser | null>(null)
+  const supabase = createClient()
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  async function handleSignOut() {
+    await supabase.auth.signOut()
+    setUser(null)
+    router.push('/')
+  }
+
+  async function handleSignIn() {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    })
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-stone-100 shadow-sm">
@@ -61,14 +87,38 @@ export default function Navbar() {
               <Heart className="w-4 h-4" />
               <span className="hidden sm:block">收藏</span>
             </Link>
-            <Link
-              href="/profile"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-ocean-600 text-white text-sm font-medium hover:bg-ocean-700 transition-colors"
-            >
-              <User className="w-4 h-4" />
-              <span className="hidden sm:block">我的日程</span>
-            </Link>
-            {/* Mobile menu toggle */}
+
+            {user ? (
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-ocean-600 text-white text-sm font-medium hover:bg-ocean-700 transition-colors"
+                >
+                  {user.user_metadata?.avatar_url ? (
+                    <img src={user.user_metadata.avatar_url} className="w-5 h-5 rounded-full" alt="" />
+                  ) : (
+                    <User className="w-4 h-4" />
+                  )}
+                  <span className="hidden sm:block">{user.user_metadata?.name?.split(' ')[0] ?? '我的'}</span>
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="p-2 rounded-full text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
+                  title="退出登录"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleSignIn}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-ocean-600 text-white text-sm font-medium hover:bg-ocean-700 transition-colors"
+              >
+                <User className="w-4 h-4" />
+                <span className="hidden sm:block">Google 登录</span>
+              </button>
+            )}
+
             <button
               className="md:hidden p-2 rounded-full hover:bg-stone-100 transition-colors"
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -97,6 +147,14 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          {!user && (
+            <button
+              onClick={handleSignIn}
+              className="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium text-ocean-600 hover:bg-ocean-50 transition-colors"
+            >
+              Google 登录
+            </button>
+          )}
         </div>
       )}
     </header>
