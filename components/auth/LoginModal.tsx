@@ -44,7 +44,7 @@ export default function LoginModal({ onClose }: Props) {
     const { error } = await supabase.auth.verifyOtp({
       email,
       token: code.trim(),
-      type: 'email',
+      type: 'magiclink',
     })
     setLoading(false)
     if (error) {
