@@ -1,6 +1,3 @@
-import MapWrapper from '@/components/map/MapWrapper'
-import { attractions } from '@/data/attractions'
-
 const infoCards = [
   {
     emoji: '🌍',
@@ -15,7 +12,7 @@ const infoCards = [
   {
     emoji: '🏛',
     title: '历史人文',
-    content: '富国岛历史悠久，曾是高棉王国的一部分，后成为越南领土。法国殖民时期（19-20世纪初）在岛上留下了大量建筑和历史遗迹，当地独特的融合文化由此形成。',
+    content: '富国岛历史悠久，曾是高棉王国的一部分，后成为越南领土。法国殖民时期在岛上留下了大量建筑和历史遗迹，当地独特的融合文化由此形成。',
   },
   {
     emoji: '🎎',
@@ -25,7 +22,7 @@ const infoCards = [
   {
     emoji: '🗣',
     title: '语言',
-    content: '官方语言为越南语（Tiếng Việt），声调复杂共6个声调。旅游区英语普及程度较高。富国岛因大量中国游客，部分商家提供中文服务。常用词：Xin chào（你好）、Cảm ơn（谢谢）。',
+    content: '官方语言为越南语（Tiếng Việt），共6个声调。旅游区英语普及程度较高，部分商家提供中文服务。常用词：Xin chào（你好）、Cảm ơn（谢谢）。',
   },
   {
     emoji: '🍜',
@@ -35,12 +32,12 @@ const infoCards = [
   {
     emoji: '💎',
     title: '经济产业',
-    content: '旅游业是支柱产业，近年来快速发展为东南亚热门度假地。传统产业包括渔业、鱼露和胡椒种植。vinpearl集团在岛上有大规模投资，建有动物园、水上乐园等设施。',
+    content: '旅游业是支柱产业，近年来快速发展为东南亚热门度假地。传统产业包括渔业、鱼露和胡椒种植。Vinpearl 集团在岛上有大规模投资，建有动物园、水上乐园等设施。',
   },
   {
     emoji: '📅',
     title: '最佳旅游时间',
-    content: '11月至4月为旱季，天气晴朗，是最佳旅游季节。5月至10月为雨季，降水较多但价格实惠。全年气温25-35℃，阳光充足，适合海滩度假。',
+    content: '11月至4月为旱季，天气晴朗，是最佳旅游季节。5月至10月为雨季，降水较多但价格实惠。全年气温25–35℃，阳光充足，适合海滩度假。',
   },
 ]
 
@@ -48,7 +45,7 @@ export default function DestinationPage() {
   return (
     <div className="min-h-screen bg-stone-50">
       {/* Hero */}
-      <div className="relative h-72 sm:h-96 overflow-hidden">
+      <div className="relative h-64 sm:h-80 overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=1600&q=80"
           alt="富国岛全景"
@@ -57,14 +54,14 @@ export default function DestinationPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-ocean-900/40 to-ocean-900/70" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4">
           <p className="text-ocean-200 text-sm font-medium tracking-widest uppercase mb-3">Destination Guide</p>
-          <h1 className="font-display text-4xl sm:text-6xl font-bold mb-3">认识富国岛</h1>
+          <h1 className="font-display text-4xl sm:text-5xl font-bold mb-3">地域介绍</h1>
           <p className="text-white/80 max-w-lg">地理 · 人文 · 风俗 · 语言，出发前深入了解这片热带天堂</p>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Intro */}
-        <div className="max-w-3xl mx-auto text-center mb-16">
+        <div className="max-w-3xl mx-auto text-center mb-14">
           <p className="text-ocean-600 font-semibold text-sm tracking-widest uppercase mb-3">About Phu Quoc</p>
           <h2 className="font-display text-3xl font-bold text-stone-900 mb-4">珍珠岛</h2>
           <p className="text-stone-600 leading-relaxed text-lg">
@@ -74,14 +71,88 @@ export default function DestinationPage() {
           </p>
         </div>
 
-        {/* Map Section */}
-        <section className="mb-16">
-          <div className="flex items-center gap-3 mb-6">
-            <h2 className="font-display text-2xl font-bold text-stone-900">景点地图</h2>
-            <span className="text-stone-400 text-sm">点击标注查看详情</span>
+        {/* Stats banner — above map */}
+        <section className="mb-12 bg-gradient-to-br from-ocean-600 to-ocean-800 rounded-3xl p-8 text-white">
+          <div className="text-center mb-6">
+            <h2 className="font-display text-2xl font-bold mb-1">富国岛数字</h2>
+            <p className="text-ocean-200 text-sm">一眼了解这座岛屿的规模</p>
           </div>
-          <div className="h-[500px] rounded-2xl overflow-hidden shadow-lg border border-stone-100">
-            <MapWrapper attractions={attractions} />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+            {[
+              { number: '574', unit: 'km²', label: '岛屿面积' },
+              { number: '150+', unit: 'km', label: '海岸线长度' },
+              { number: '31,000+', unit: '公顷', label: '国家公园面积' },
+              { number: '150+', unit: '种', label: '动物园物种数' },
+            ].map(stat => (
+              <div key={stat.label}>
+                <div className="font-display text-3xl font-bold text-sand-300">
+                  {stat.number}<span className="text-base ml-0.5">{stat.unit}</span>
+                </div>
+                <div className="text-ocean-100 text-sm mt-1">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Map Section — static, no interaction */}
+        <section className="mb-14">
+          <div className="mb-6">
+            <p className="text-ocean-600 font-semibold text-xs tracking-widest uppercase mb-1">Map</p>
+            <h2 className="font-display text-2xl font-bold text-stone-900">地图</h2>
+            <p className="text-stone-400 text-sm mt-1">富国岛在越南的位置 · 岛屿详细地图</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Regional context map */}
+            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+              <div className="px-4 pt-4 pb-2">
+                <p className="font-semibold text-stone-700 text-sm">富国岛在越南的位置</p>
+                <p className="text-xs text-stone-400 mt-0.5">越南西南端，泰国湾，毗邻柬埔寨</p>
+              </div>
+              <iframe
+                title="富国岛区域位置图"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=99.0%2C7.5%2C109.5%2C15.5&layer=mapnik&marker=10.2178%2C103.9742"
+                className="w-full"
+                style={{ height: '320px', border: 0 }}
+                loading="lazy"
+              />
+              <div className="px-4 py-2.5 bg-stone-50 border-t border-stone-100 text-xs text-stone-400">
+                © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" className="underline">OpenStreetMap</a> contributors
+              </div>
+            </div>
+
+            {/* Island detail map */}
+            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+              <div className="px-4 pt-4 pb-2">
+                <p className="font-semibold text-stone-700 text-sm">富国岛详细地图</p>
+                <p className="text-xs text-stone-400 mt-0.5">岛屿地形、主要城镇与道路分布</p>
+              </div>
+              <iframe
+                title="富国岛详细地图"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=103.84%2C9.97%2C104.12%2C10.52&layer=mapnik"
+                className="w-full"
+                style={{ height: '320px', border: 0 }}
+                loading="lazy"
+              />
+              <div className="px-4 py-2.5 bg-stone-50 border-t border-stone-100 text-xs text-stone-400">
+                © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" className="underline">OpenStreetMap</a> contributors
+              </div>
+            </div>
+          </div>
+
+          {/* Key locations reference */}
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { name: '迪淘（主城区）', desc: '夜市、餐厅集中地' },
+              { name: '白大湾 Bai Dai', desc: '希尔顿所在，北部海滩' },
+              { name: '星海滩 Bai Sao', desc: '南部最美白沙滩' },
+              { name: '安泰岛 An Thoi', desc: '缆车出发点' },
+            ].map(loc => (
+              <div key={loc.name} className="bg-white rounded-xl border border-stone-100 shadow-sm p-3">
+                <p className="font-semibold text-stone-800 text-xs">{loc.name}</p>
+                <p className="text-stone-400 text-xs mt-0.5">{loc.desc}</p>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -100,28 +171,6 @@ export default function DestinationPage() {
                 <div className="text-3xl mb-3">{card.emoji}</div>
                 <h3 className="font-display font-bold text-stone-900 mb-2">{card.title}</h3>
                 <p className="text-stone-500 text-sm leading-relaxed">{card.content}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Stats banner */}
-        <section className="mt-16 bg-gradient-to-br from-ocean-600 to-ocean-800 rounded-3xl p-8 text-white">
-          <div className="text-center mb-8">
-            <h2 className="font-display text-2xl font-bold mb-2">富国岛数字</h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-            {[
-              { number: '574', unit: 'km²', label: '岛屿面积' },
-              { number: '150+', unit: 'km', label: '海岸线长度' },
-              { number: '31,000+', unit: '公顷', label: '国家公园面积' },
-              { number: '150+', unit: '种', label: '动物园物种数' },
-            ].map(stat => (
-              <div key={stat.label}>
-                <div className="font-display text-3xl font-bold text-sand-300">
-                  {stat.number}<span className="text-lg">{stat.unit}</span>
-                </div>
-                <div className="text-ocean-100 text-sm mt-1">{stat.label}</div>
               </div>
             ))}
           </div>
