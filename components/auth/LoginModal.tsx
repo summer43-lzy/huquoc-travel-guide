@@ -2,48 +2,59 @@
 
 import { useState } from 'react'
 import { X, Mail } from 'lucide-react'
-import { createClient } from '@supabase/supabase-js'
-
-// Use implicit flow for email OTP so the magic link works across any browser/app
-// (PKCE stores a verifier in localStorage which breaks when the link is opened
-// in a different browser, e.g. QQ mail's built-in WebView)
-function createImplicitClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { flowType: 'implicit', detectSessionInUrl: false } }
-  )
-}
+import { createClient } from '@/lib/supabase/client'
 
 interface Props {
   onClose: () => void
 }
 
+type Step = 'input-email' | 'input-code' | 'success'
+
 export default function LoginModal({ onClose }: Props) {
+  const [step, setStep] = useState<Step>('input-email')
   const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
+  const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  function getRedirectTo() {
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
-    return `${window.location.origin}${basePath}/auth/callback`
-  }
-
-  async function handleEmailLogin(e: React.FormEvent) {
+  // ── Step 1: send OTP code ──────────────────────────────────────────────────
+  async function handleSendCode(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const supabase = createImplicitClient()
+    const supabase = createClient()
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: getRedirectTo() },
+      options: { shouldCreateUser: true },
     })
     setLoading(false)
     if (error) {
       setError('发送失败：' + error.message)
     } else {
-      setSent(true)
+      setStep('input-code')
+    }
+  }
+
+  // ── Step 2: verify OTP code ────────────────────────────────────────────────
+  async function handleVerifyCode(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    const supabase = createClient()
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: code.trim(),
+      type: 'email',
+    })
+    setLoading(false)
+    if (error) {
+      setError('验证码错误或已过期，请重新发送')
+    } else {
+      setStep('success')
+      setTimeout(() => {
+        onClose()
+        window.location.reload()
+      }, 1200)
     }
   }
 
@@ -53,12 +64,11 @@ export default function LoginModal({ onClose }: Props) {
       alert('请用 Safari 或 Chrome 浏览器打开后再登录，微信内置浏览器不支持 Google 登录。')
       return
     }
-    // Google OAuth keeps PKCE (more secure, same browser flow)
-    const { createClient: createBrowserClient } = await import('@/lib/supabase/client')
-    const supabase = createBrowserClient()
+    const supabase = createClient()
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: getRedirectTo() },
+      options: { redirectTo: `${window.location.origin}${basePath}/auth/callback` },
     })
   }
 
@@ -70,34 +80,22 @@ export default function LoginModal({ onClose }: Props) {
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
-          <h3 className="font-display font-bold text-stone-900">登录账号</h3>
+          <h3 className="font-display font-bold text-stone-900">
+            {step === 'input-email' && '登录账号'}
+            {step === 'input-code' && '输入验证码'}
+            {step === 'success' && '登录成功'}
+          </h3>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-stone-100 transition-colors">
             <X className="w-4 h-4 text-stone-500" />
           </button>
         </div>
 
         <div className="p-5">
-          {sent ? (
-            /* Success state */
-            <div className="text-center py-6">
-              <div className="text-5xl mb-4">📬</div>
-              <p className="font-semibold text-stone-800 mb-2">登录链接已发送！</p>
-              <p className="text-stone-500 text-sm leading-relaxed">
-                请查收 <span className="font-medium text-ocean-600">{email}</span> 的邮件，
-                点击邮件中的「登录」按钮即可完成登录。
-              </p>
-              <p className="text-stone-400 text-xs mt-3">没收到？请检查垃圾邮件文件夹</p>
-              <button
-                onClick={() => setSent(false)}
-                className="mt-4 text-xs text-ocean-600 hover:underline"
-              >
-                重新发送
-              </button>
-            </div>
-          ) : (
+
+          {/* ── Step 1: email input ── */}
+          {step === 'input-email' && (
             <>
-              {/* Email magic link */}
-              <form onSubmit={handleEmailLogin} className="space-y-3 mb-5">
+              <form onSubmit={handleSendCode} className="space-y-3 mb-5">
                 <div>
                   <label className="text-xs font-semibold text-stone-500 mb-1.5 block">
                     邮箱登录 · 国内直接可用，无需翻墙
@@ -118,18 +116,16 @@ export default function LoginModal({ onClose }: Props) {
                   className="w-full py-2.5 bg-ocean-600 hover:bg-ocean-500 disabled:opacity-60 text-white font-semibold rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
                 >
                   <Mail className="w-4 h-4" />
-                  {loading ? '发送中...' : '发送登录链接到邮箱'}
+                  {loading ? '发送中...' : '发送验证码'}
                 </button>
               </form>
 
-              {/* Divider */}
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex-1 h-px bg-stone-100" />
                 <span className="text-xs text-stone-400">或</span>
                 <div className="flex-1 h-px bg-stone-100" />
               </div>
 
-              {/* Google OAuth */}
               <button
                 onClick={handleGoogleLogin}
                 className="w-full py-2.5 border border-stone-200 hover:border-stone-300 hover:bg-stone-50 text-stone-700 font-medium rounded-xl transition-colors text-sm flex items-center justify-center gap-2.5"
@@ -142,12 +138,56 @@ export default function LoginModal({ onClose }: Props) {
                 </svg>
                 Google 登录（需要翻墙）
               </button>
-
-              <p className="text-center text-xs text-stone-400 mt-4">
-                登录后可跨设备同步收藏和行程数据
-              </p>
             </>
           )}
+
+          {/* ── Step 2: code input ── */}
+          {step === 'input-code' && (
+            <form onSubmit={handleVerifyCode} className="space-y-4">
+              <div className="text-center py-2">
+                <div className="text-3xl mb-3">📬</div>
+                <p className="text-stone-600 text-sm leading-relaxed">
+                  验证码已发送至<br />
+                  <span className="font-semibold text-ocean-600">{email}</span>
+                </p>
+                <p className="text-stone-400 text-xs mt-1">请查收邮件，将 6 位数字验证码填入下方</p>
+              </div>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={code}
+                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="6 位验证码"
+                className="w-full border border-stone-200 rounded-xl px-3 py-3 text-center text-2xl font-bold tracking-[0.5em] focus:outline-none focus:border-ocean-400 transition-colors"
+                maxLength={6}
+                required
+              />
+              {error && <p className="text-xs text-rose-500 text-center">{error}</p>}
+              <button
+                type="submit"
+                disabled={loading || code.length !== 6}
+                className="w-full py-2.5 bg-ocean-600 hover:bg-ocean-500 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors text-sm"
+              >
+                {loading ? '验证中...' : '确认登录'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setStep('input-email'); setCode(''); setError('') }}
+                className="w-full text-xs text-stone-400 hover:text-stone-600 py-1"
+              >
+                重新发送 / 换个邮箱
+              </button>
+            </form>
+          )}
+
+          {/* ── Step 3: success ── */}
+          {step === 'success' && (
+            <div className="text-center py-6">
+              <div className="text-5xl mb-3">✅</div>
+              <p className="font-semibold text-stone-800">登录成功！</p>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
