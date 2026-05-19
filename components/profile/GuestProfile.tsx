@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Heart, Calendar, Share2, Check, Clock, Plane, MapPin, CheckCircle } from 'lucide-react'
 import { getFavorites } from '@/lib/localStorage'
 import { attractions } from '@/data/attractions'
@@ -59,14 +60,14 @@ function TripStatusBanner({ favCount }: { favCount: number }) {
               { label: '收藏心仪景点', href: '/itinerary' },
               { label: '安排日程规划', href: '#calendar' },
             ].map(item => (
-              <a
+              <Link
                 key={item.label}
                 href={item.href}
                 className="flex items-center gap-1.5 text-xs text-white/80 hover:text-white transition-colors"
               >
                 <CheckCircle className="w-3.5 h-3.5 text-ocean-300 flex-shrink-0" />
                 {item.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -244,12 +245,12 @@ export default function GuestProfile() {
             <p className="text-stone-400 mb-6">
               去行程攻略页面，点击景点卡片上的 ❤️ 按钮即可收藏
             </p>
-            <a
+            <Link
               href="/itinerary"
               className="inline-flex items-center gap-2 bg-ocean-600 hover:bg-ocean-700 text-white px-6 py-3 rounded-full font-medium transition-colors"
             >
               去看行程攻略
-            </a>
+            </Link>
           </div>
         ) : (
           <div id="calendar" className="grid grid-cols-1 lg:grid-cols-3 gap-8">

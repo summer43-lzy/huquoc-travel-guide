@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Heart, BookOpen, MapPin, Plus, Globe, Lock, Trash2, Edit3, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -155,9 +156,9 @@ export default function UserProfile({ user }: { user: User }) {
               <div className="text-center py-16">
                 <div className="text-5xl mb-3">❤️</div>
                 <p className="text-stone-500">还没有收藏，去景点页面点击 ❤️ 收藏</p>
-                <a href="/itinerary" className="mt-4 inline-block text-ocean-600 text-sm font-medium hover:underline">
+                <Link href="/itinerary" className="mt-4 inline-block text-ocean-600 text-sm font-medium hover:underline">
                   去看行程攻略 →
-                </a>
+                </Link>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
