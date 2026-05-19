@@ -28,6 +28,7 @@ export const tripData: TripOverview = {
           price: '含早餐',
           openHours: '24小时',
           tags: ['五星酒店', '海景', '私人海滩'],
+          distanceFromHotel: '酒店内',
         },
         {
           id: 'sunset-beach',
@@ -42,6 +43,7 @@ export const tripData: TripOverview = {
           price: '免费',
           openHours: '建议17:30–19:00',
           tags: ['日落', '必看', '摄影', '浪漫'],
+          distanceFromHotel: '约30km · 驾车35分钟',
         },
         {
           id: 'dinh-cau-night-market',
@@ -56,6 +58,7 @@ export const tripData: TripOverview = {
           price: '人均约200,000–400,000 VND',
           openHours: '17:00 – 22:00',
           tags: ['夜市', '美食', '购物', '海鲜'],
+          distanceFromHotel: '约35km · 驾车40分钟',
         },
       ],
     },
@@ -83,6 +86,7 @@ export const tripData: TripOverview = {
           price: '10人包船约5,000,000–8,000,000 VND',
           openHours: '05:00 – 12:00',
           tags: ['海钓', '出海', '团队活动', '刺激体验'],
+          distanceFromHotel: '约35km · 驾车40分钟',
         },
         {
           id: 'cable-car',
@@ -97,6 +101,7 @@ export const tripData: TripOverview = {
           price: '约600,000 VND/往返（含乐园）',
           openHours: '09:00 – 20:30',
           tags: ['缆车', '观景', '必去', '打卡'],
+          distanceFromHotel: '约46km · 驾车55分钟',
         },
         {
           id: 'kiss-bridge',
@@ -111,6 +116,7 @@ export const tripData: TripOverview = {
           price: '含在缆车套票内',
           openHours: '09:00 – 18:00',
           tags: ['打卡', '浪漫', '观景', '必去'],
+          distanceFromHotel: '约47km · 缆车抵达',
         },
         {
           id: 'hon-thom-park',
@@ -125,6 +131,7 @@ export const tripData: TripOverview = {
           price: '含在缆车往返票内（水上项目另计）',
           openHours: '09:00 – 17:30',
           tags: ['乐园', '水上活动', '浮潜', '沙滩'],
+          distanceFromHotel: '约47km · 缆车抵达',
         },
         {
           id: 'sao-beach',
@@ -139,6 +146,7 @@ export const tripData: TripOverview = {
           price: '免费入场',
           openHours: '全天开放',
           tags: ['海滩', '浮潜', '摄影', '必去'],
+          distanceFromHotel: '约48km · 驾车60分钟',
         },
         {
           id: 'an-thoi-night-market',
@@ -153,6 +161,7 @@ export const tripData: TripOverview = {
           price: '人均约150,000–300,000 VND',
           openHours: '17:00 – 22:00',
           tags: ['夜市', '本地美食', '购物', '性价比'],
+          distanceFromHotel: '约47km · 驾车55分钟',
         },
       ],
     },
@@ -175,6 +184,7 @@ export const tripData: TripOverview = {
           price: '约600,000 VND/人',
           openHours: '08:00 – 17:00',
           tags: ['动物园', '家庭', '自然', '互动体验'],
+          distanceFromHotel: '约5km · 驾车8分钟',
         },
         {
           id: 'pepper-farm',
@@ -189,6 +199,7 @@ export const tripData: TripOverview = {
           price: '免费参观，购物自愿',
           openHours: '08:00 – 18:00',
           tags: ['农场', '文化体验', '购物', '伴手礼'],
+          distanceFromHotel: '约20km · 驾车25分钟',
         },
         {
           id: 'restaurant-chez-carole',
@@ -203,6 +214,7 @@ export const tripData: TripOverview = {
           price: '人均约300,000–600,000 VND',
           openHours: '10:00 – 22:00',
           tags: ['法越融合', '精品餐厅', '海鲜', '团队聚餐'],
+          distanceFromHotel: '约35km · 驾车40分钟',
         },
       ],
     },
@@ -225,6 +237,7 @@ export const tripData: TripOverview = {
           price: '免费（酒店住客）',
           openHours: '全天开放',
           tags: ['海滩', '日出', '休闲', '告别'],
+          distanceFromHotel: '酒店私人海滩',
         },
         {
           id: 'souvenir-shopping',
@@ -243,6 +256,7 @@ export const tripData: TripOverview = {
           price: '按需',
           openHours: '08:00 – 20:00',
           tags: ['购物', '伴手礼', '特产', '胡椒', '鱼露'],
+          distanceFromHotel: '约35km · 驾车40分钟',
         },
       ],
     },

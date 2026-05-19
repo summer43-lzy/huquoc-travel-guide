@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Star, MapPin, Clock, ChevronDown, Filter, Navigation } from 'lucide-react'
+import { Star, MapPin, Clock, ChevronDown, Filter, Navigation, Quote } from 'lucide-react'
 import { restaurants, type CuisineType } from '@/data/restaurants'
 import { cn } from '@/lib/utils'
 
@@ -188,6 +188,27 @@ export default function RestaurantSection() {
                 <p className="text-stone-500 text-xs leading-relaxed line-clamp-2">{r.description}</p>
               </div>
             </div>
+
+            {/* Inline reviews (always visible) */}
+            {r.reviews && r.reviews.length > 0 && (
+              <div className="border-t border-stone-50 px-4 pb-3 pt-3 bg-stone-50/40">
+                <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2">热门评价</p>
+                <div className="space-y-2">
+                  {r.reviews.slice(0, 2).map((rv, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <Quote className="w-3 h-3 text-ocean-300 flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-stone-600 leading-relaxed line-clamp-2">{rv.text}</p>
+                        <p className="text-[10px] text-stone-400 mt-0.5 flex items-center gap-1">
+                          <span className="text-amber-400">{'★'.repeat(rv.rating)}</span>
+                          <span>{rv.author}</span>
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Expanded details */}
             {expanded === r.id && (

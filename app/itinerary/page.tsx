@@ -1,11 +1,10 @@
-import { MapPin, Clock, DollarSign } from 'lucide-react'
+import { MapPin, Clock, DollarSign, Navigation } from 'lucide-react'
 import { attractions } from '@/data/attractions'
 import { tripData } from '@/data/itinerary'
 import FavoriteButton from '@/components/ui/FavoriteButton'
 import CategoryBadge from '@/components/ui/CategoryBadge'
 import StarRating from '@/components/ui/StarRating'
 import AttractionRating from '@/components/ui/AttractionRating'
-import { ContentPublicJournals } from '@/components/ui/PublicJournals'
 import RestaurantSection from '@/components/itinerary/RestaurantSection'
 import { Attraction } from '@/types'
 
@@ -112,6 +111,12 @@ export default function ItineraryPage() {
                           <span>{attraction.openHours}</span>
                         </div>
                       )}
+                      {attraction.distanceFromHotel && (
+                        <div className="flex items-start gap-1.5 col-span-2">
+                          <Navigation className="w-3.5 h-3.5 text-ocean-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-ocean-700 font-medium">{attraction.distanceFromHotel}</span>
+                        </div>
+                      )}
                       {attraction.address && (
                         <div className="flex items-start gap-1.5 col-span-2">
                           <MapPin className="w-3.5 h-3.5 text-rose-400 mt-0.5 flex-shrink-0" />
@@ -146,7 +151,6 @@ export default function ItineraryPage() {
                       <AttractionRating attractionId={attraction.id} />
                     </div>
                   </div>
-                  <ContentPublicJournals contentType="attraction" contentId={attraction.id} />
                 </div>
               ))}
             </div>

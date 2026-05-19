@@ -11,6 +11,7 @@ export interface Attraction {
   price?: string
   openHours?: string
   tags: string[]
+  distanceFromHotel?: string
 }
 
 export interface DayItinerary {
