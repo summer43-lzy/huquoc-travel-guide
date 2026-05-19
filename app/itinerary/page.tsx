@@ -5,6 +5,7 @@ import FavoriteButton from '@/components/ui/FavoriteButton'
 import CategoryBadge from '@/components/ui/CategoryBadge'
 import StarRating from '@/components/ui/StarRating'
 import AttractionRating from '@/components/ui/AttractionRating'
+import { ContentPublicJournals } from '@/components/ui/PublicJournals'
 import RestaurantSection from '@/components/itinerary/RestaurantSection'
 import { Attraction } from '@/types'
 
@@ -145,6 +146,7 @@ export default function ItineraryPage() {
                       <AttractionRating attractionId={attraction.id} />
                     </div>
                   </div>
+                  <ContentPublicJournals contentType="attraction" contentId={attraction.id} />
                 </div>
               ))}
             </div>

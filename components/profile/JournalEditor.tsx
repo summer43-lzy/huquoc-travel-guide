@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { X, Upload, Globe, Lock, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { createJournal, updateJournal, type Journal } from '@/lib/supabase/db'
+import { attractions } from '@/data/attractions'
 
 interface Props {
   userId: string
@@ -17,6 +18,7 @@ export default function JournalEditor({ userId, existing, onSaved, onCancel }: P
   const [body, setBody] = useState(existing?.body ?? '')
   const [isPublic, setIsPublic] = useState(existing?.is_public ?? false)
   const [coverUrl, setCoverUrl] = useState(existing?.cover_url ?? '')
+  const [relatedId, setRelatedId] = useState(existing?.related_content_id ?? '')
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -40,11 +42,13 @@ export default function JournalEditor({ userId, existing, onSaved, onCancel }: P
     if (!title.trim()) return
     setSaving(true)
     let saved: Journal | null = null
+    const rType = relatedId ? 'attraction' : undefined
+    const rId = relatedId || undefined
     if (existing) {
-      await updateJournal(existing.id, title.trim(), body.trim(), isPublic, coverUrl || undefined)
-      saved = { ...existing, title: title.trim(), body: body.trim(), is_public: isPublic, cover_url: coverUrl || null }
+      await updateJournal(existing.id, title.trim(), body.trim(), isPublic, coverUrl || undefined, rType, rId)
+      saved = { ...existing, title: title.trim(), body: body.trim(), is_public: isPublic, cover_url: coverUrl || null, related_content_type: rType ?? null, related_content_id: rId ?? null }
     } else {
-      saved = await createJournal(userId, title.trim(), body.trim(), isPublic, coverUrl || undefined)
+      saved = await createJournal(userId, title.trim(), body.trim(), isPublic, coverUrl || undefined, rType, rId)
     }
     setSaving(false)
     if (saved) onSaved(saved)
@@ -109,6 +113,22 @@ export default function JournalEditor({ userId, existing, onSaved, onCancel }: P
               rows={6}
               className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm resize-none focus:outline-none focus:border-ocean-400 transition-colors"
             />
+          </div>
+
+          {/* Related attraction */}
+          <div>
+            <label className="text-xs font-semibold text-stone-500 block mb-1.5">关联景点（可选）</label>
+            <select
+              value={relatedId}
+              onChange={e => setRelatedId(e.target.value)}
+              className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-ocean-400 transition-colors bg-white"
+            >
+              <option value="">不关联特定景点</option>
+              {attractions.map(a => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
+            </select>
+            <p className="text-xs text-stone-400 mt-1">关联后，游记会显示在该景点页面下方</p>
           </div>
 
           {/* Visibility */}

@@ -106,6 +106,8 @@ export interface Journal {
   body: string
   is_public: boolean
   cover_url: string | null
+  related_content_type: string | null
+  related_content_id: string | null
   created_at: string
   updated_at: string
 }
@@ -122,18 +124,41 @@ export async function getPublicJournals(): Promise<Journal[]> {
   return (data ?? []) as Journal[]
 }
 
-export async function createJournal(userId: string, title: string, body: string, isPublic: boolean, coverUrl?: string) {
+export async function createJournal(
+  userId: string, title: string, body: string, isPublic: boolean,
+  coverUrl?: string, relatedContentType?: string, relatedContentId?: string
+) {
   const sb = createClient()
   const { data, error } = await sb.from('journals').insert({
-    user_id: userId, title, body, is_public: isPublic, cover_url: coverUrl ?? null
+    user_id: userId, title, body, is_public: isPublic, cover_url: coverUrl ?? null,
+    related_content_type: relatedContentType ?? null,
+    related_content_id: relatedContentId ?? null,
   }).select().single()
   if (error) return null
   return data as Journal
 }
 
-export async function updateJournal(id: string, title: string, body: string, isPublic: boolean, coverUrl?: string) {
+export async function updateJournal(
+  id: string, title: string, body: string, isPublic: boolean,
+  coverUrl?: string, relatedContentType?: string, relatedContentId?: string
+) {
   const sb = createClient()
-  await sb.from('journals').update({ title, body, is_public: isPublic, cover_url: coverUrl ?? null, updated_at: new Date().toISOString() }).eq('id', id)
+  await sb.from('journals').update({
+    title, body, is_public: isPublic, cover_url: coverUrl ?? null,
+    related_content_type: relatedContentType ?? null,
+    related_content_id: relatedContentId ?? null,
+    updated_at: new Date().toISOString()
+  }).eq('id', id)
+}
+
+export async function getPublicJournalsForContent(contentType: string, contentId: string): Promise<Journal[]> {
+  const sb = createClient()
+  const { data } = await sb.from('journals').select('*')
+    .eq('is_public', true)
+    .eq('related_content_type', contentType)
+    .eq('related_content_id', contentId)
+    .order('created_at', { ascending: false })
+  return (data ?? []) as Journal[]
 }
 
 export async function deleteJournal(id: string) {
