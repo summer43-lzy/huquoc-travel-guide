@@ -129,7 +129,7 @@ function TripStatusBanner({ favCount }: { favCount: number }) {
 }
 
 function ShareButton() {
-  const [copied, setCopied] = useState(false)
+  const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle')
 
   async function share() {
     const url = window.location.origin
@@ -138,32 +138,59 @@ function ShareButton() {
       text: '2026年6月5–8日 富国拉菲斯塔·希尔顿 10人专属旅行指南',
       url,
     }
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData)
-      } else {
-        throw new Error('no share api')
-      }
-    } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') return
+
+    // Mobile: use native share sheet
+    if (navigator.share) {
       try {
-        await navigator.clipboard.writeText(url)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2500)
-      } catch {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2500)
+        await navigator.share(shareData)
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
       }
+      return
     }
+
+    // Desktop: copy to clipboard
+    let success = false
+    try {
+      await navigator.clipboard.writeText(url)
+      success = true
+    } catch {
+      // execCommand fallback for older browsers / non-HTTPS contexts
+      try {
+        const ta = document.createElement('textarea')
+        ta.value = url
+        ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0'
+        document.body.appendChild(ta)
+        ta.focus()
+        ta.select()
+        success = document.execCommand('copy')
+        document.body.removeChild(ta)
+      } catch { /* ignore */ }
+    }
+
+    setState(success ? 'copied' : 'failed')
+    setTimeout(() => setState('idle'), 3000)
   }
 
   return (
     <button
       onClick={share}
-      className="flex items-center gap-2 px-4 py-2 rounded-full border border-stone-200 text-stone-600 hover:border-ocean-400 hover:text-ocean-700 transition-colors text-sm font-medium"
+      className={[
+        'flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all',
+        state === 'copied'
+          ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
+          : state === 'failed'
+          ? 'border-rose-300 bg-rose-50 text-rose-600'
+          : 'border-stone-200 text-stone-600 hover:border-ocean-400 hover:text-ocean-700',
+      ].join(' ')}
     >
-      {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
-      {copied ? '链接已复制！' : '分享给朋友'}
+      {state === 'copied' ? (
+        <><Check className="w-4 h-4" /> 已复制链接 ✓</>
+      ) : state === 'failed' ? (
+        <><Share2 className="w-4 h-4" /> 复制失败，请手动复制</>
+      ) : (
+        <><Share2 className="w-4 h-4" /> 分享给朋友</>
+      )}
     </button>
   )
 }

@@ -24,6 +24,7 @@ export default function Footer() {
               <li><Link href="/destination" className="hover:text-white transition-colors">地域介绍</Link></li>
               <li><Link href="/itinerary" className="hover:text-white transition-colors">行程攻略</Link></li>
               <li><Link href="/practical" className="hover:text-white transition-colors">出发前关注</Link></li>
+              <li><Link href="/memories" className="hover:text-white transition-colors">旅行回忆</Link></li>
             </ul>
           </div>
           <div>

@@ -21,10 +21,10 @@ export default function DailyItinerary({ trip }: { trip: TripOverview }) {
   const [expanded, setExpanded] = useState<number | null>(1)
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-      <div className="text-center mb-12">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 sm:pb-20">
+      <div className="text-center mb-6 sm:mb-12">
         <p className="text-ocean-600 font-semibold text-sm tracking-widest uppercase mb-3">Daily Plan</p>
-        <h2 className="font-display text-4xl font-bold text-stone-900 mb-4">每日详细安排</h2>
+        <h2 className="font-display text-3xl sm:text-4xl font-bold text-stone-900 mb-4">每日详细安排</h2>
         <p className="text-stone-500 max-w-xl mx-auto">点击每一天查看详细行程和打卡地点</p>
       </div>
 

@@ -61,11 +61,11 @@ export default function DestinationPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
         {/* Intro */}
-        <div className="max-w-3xl mx-auto text-center mb-14">
+        <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-14">
           <p className="text-ocean-600 font-semibold text-sm tracking-widest uppercase mb-3">About Phu Quoc</p>
-          <h2 className="font-display text-3xl font-bold text-stone-900 mb-4">珍珠岛</h2>
+          <h2 className="font-display text-2xl sm:text-3xl font-bold text-stone-900 mb-4">珍珠岛</h2>
           <p className="text-stone-600 leading-relaxed text-lg">
             富国岛被誉为"东南亚的马尔代夫"，拥有绵延数十公里的白色沙滩、清澈见底的翡翠色海水，
             以及覆盖全岛三分之二面积的原始热带雨林。近年来大力发展旅游业，

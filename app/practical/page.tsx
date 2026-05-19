@@ -185,6 +185,26 @@ export default function PracticalPage() {
         </div>
       </div>
 
+      {/* Mobile-only quick tool shortcuts (3 tiles) */}
+      <div className="md:hidden bg-white border-b border-stone-100 px-4 py-3">
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { href: '#currency', emoji: '💱', label: '货币换算' },
+            { href: '#packing', emoji: '🧳', label: '行李清单' },
+            { href: '#phrases', emoji: '🗣️', label: '越南语速查' },
+          ].map(tool => (
+            <a
+              key={tool.href}
+              href={tool.href}
+              className="flex flex-col items-center gap-1 py-2.5 px-2 rounded-xl bg-ocean-50 hover:bg-ocean-100 transition-colors"
+            >
+              <span className="text-xl">{tool.emoji}</span>
+              <span className="text-xs font-medium text-ocean-700 text-center">{tool.label}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
       {/* Quick nav */}
       <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-sm border-b border-stone-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -206,7 +226,7 @@ export default function PracticalPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-10 sm:space-y-16">
 
         {/* ── Part 1: 入境关注 ── */}
         <div>
@@ -265,9 +285,9 @@ export default function PracticalPage() {
             </div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <CurrencyConverter />
-            <PackingChecklist />
-            <PhrasesCard />
+            <div id="currency" className="scroll-mt-28"><CurrencyConverter /></div>
+            <div id="packing" className="scroll-mt-28"><PackingChecklist /></div>
+            <div id="phrases" className="scroll-mt-28"><PhrasesCard /></div>
             {/* Offline map tip */}
             <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-5">
               <div className="flex items-center justify-between mb-4">

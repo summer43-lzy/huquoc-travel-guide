@@ -4,6 +4,7 @@ import { tripData } from '@/data/itinerary'
 import FavoriteButton from '@/components/ui/FavoriteButton'
 import CategoryBadge from '@/components/ui/CategoryBadge'
 import StarRating from '@/components/ui/StarRating'
+import AttractionRating from '@/components/ui/AttractionRating'
 import RestaurantSection from '@/components/itinerary/RestaurantSection'
 import { Attraction } from '@/types'
 
@@ -34,7 +35,7 @@ export default function ItineraryPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
         {/* Day-by-day quick nav — sticky below header on mobile */}
         <div className="sticky top-16 z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 bg-stone-50/95 backdrop-blur-sm border-b border-stone-100 pt-3 pb-2 mb-8">
         <div className="flex gap-3 overflow-x-auto scrollbar-hide">
@@ -132,12 +133,16 @@ export default function ItineraryPage() {
                       </div>
                     )}
 
-                    <div className="flex flex-wrap gap-1.5 mt-3">
+                    <div className="flex flex-wrap gap-1.5 mt-3 mb-2">
                       {attraction.tags.map(tag => (
                         <span key={tag} className="bg-stone-100 text-stone-500 rounded-full px-2.5 py-0.5 text-xs">
                           {tag}
                         </span>
                       ))}
+                    </div>
+
+                    <div className="border-t border-stone-50 pt-2.5">
+                      <AttractionRating attractionId={attraction.id} />
                     </div>
                   </div>
                 </div>

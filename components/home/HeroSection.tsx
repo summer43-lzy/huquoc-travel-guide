@@ -31,7 +31,7 @@ export default function HeroSection({ trip }: { trip: TripOverview }) {
 
         {/* Title + English subtitle */}
         <div className="text-center mb-3 sm:mb-5">
-          <h1 className="font-display text-4xl sm:text-6xl font-bold text-white leading-tight drop-shadow-lg">
+          <h1 className="font-display text-3xl sm:text-6xl font-bold text-white leading-tight drop-shadow-lg">
             富国岛<span className="text-sand-300"> 旅行指南</span>
           </h1>
           <p className="text-white/60 text-xs sm:text-sm mt-1.5 tracking-widest font-light">
@@ -39,31 +39,37 @@ export default function HeroSection({ trip }: { trip: TripOverview }) {
           </p>
         </div>
 
-        {/* Core trip info */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-3 sm:mb-5">
-          <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-xs sm:text-sm text-white">
+        {/* Mobile: one-line trip summary */}
+        <div className="sm:hidden text-center mb-4">
+          <p className="text-white/80 text-sm">
+            6月5–8日 · 4天3晚 · {trip.groupSize}人 · 拉菲斯塔·希尔顿
+          </p>
+        </div>
+
+        {/* Desktop: info capsules */}
+        <div className="hidden sm:flex flex-wrap items-center justify-center gap-2 mb-5">
+          <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-sm text-white">
             <Calendar className="w-3.5 h-3.5 text-sand-300 flex-shrink-0" />
             <span className="font-semibold">{formatDate(trip.startDate)} — {formatDate(trip.endDate)}</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-xs sm:text-sm text-white">
+          <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-sm text-white">
             <Waves className="w-3.5 h-3.5 text-sand-300 flex-shrink-0" />
             <span>{trip.totalDays} 天 {trip.totalDays - 1} 晚</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-xs sm:text-sm text-white">
+          <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-sm text-white">
             <Users className="w-3.5 h-3.5 text-sand-300 flex-shrink-0" />
             <span>{trip.groupSize} 人同行</span>
           </div>
           {trip.hotel && (
-            <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-xs sm:text-sm text-white">
+            <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-sm text-white">
               <Hotel className="w-3.5 h-3.5 text-sand-300 flex-shrink-0" />
-              <span className="hidden sm:inline">{trip.hotel}</span>
-              <span className="sm:hidden">拉菲斯塔·希尔顿</span>
+              <span>{trip.hotel}</span>
             </div>
           )}
         </div>
 
-        {/* Day-by-day strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5 max-w-2xl mx-auto">
+        {/* Desktop: day-by-day strip */}
+        <div className="hidden sm:grid grid-cols-4 gap-2 mb-5 max-w-2xl mx-auto">
           {trip.days.map((day, i) => (
             <a
               key={day.day}
@@ -76,26 +82,26 @@ export default function HeroSection({ trip }: { trip: TripOverview }) {
                 </div>
                 <span className="text-[10px] text-white/60">{formatDate(day.date)}</span>
               </div>
-              <p className="text-[11px] sm:text-xs font-semibold leading-tight line-clamp-2">
+              <p className="text-xs font-semibold leading-tight line-clamp-2">
                 {day.title.split('·').map(s => s.trim()).slice(0, 2).join(' · ')}
               </p>
             </a>
           ))}
         </div>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+        {/* CTAs — side-by-side on all screen sizes */}
+        <div className="flex flex-row items-center justify-center gap-2 sm:gap-3">
           <Link
             href="/itinerary"
-            className="w-full sm:w-auto text-center px-7 py-2.5 sm:py-3 bg-ocean-600 hover:bg-ocean-500 text-white font-semibold rounded-full transition-colors shadow-lg text-sm"
+            className="flex-1 sm:flex-none text-center px-5 sm:px-7 py-2.5 sm:py-3 bg-ocean-600 hover:bg-ocean-500 text-white font-semibold rounded-full transition-colors shadow-lg text-sm"
           >
-            查看完整行程
+            查看行程
           </Link>
           <Link
             href="/destination"
-            className="w-full sm:w-auto text-center px-7 py-2.5 sm:py-3 bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/30 text-white font-semibold rounded-full transition-colors text-sm"
+            className="flex-1 sm:flex-none text-center px-5 sm:px-7 py-2.5 sm:py-3 bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/30 text-white font-semibold rounded-full transition-colors text-sm"
           >
-            了解目的地
+            目的地介绍
           </Link>
         </div>
       </div>

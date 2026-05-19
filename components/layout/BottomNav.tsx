@@ -2,14 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Globe, CalendarDays, Info } from 'lucide-react'
+import { Home, Globe, CalendarDays, Info, Camera } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const tabs = [
-  { href: '/',            label: '首页',      Icon: Home },
-  { href: '/destination', label: '地域介绍',  Icon: Globe },
-  { href: '/itinerary',   label: '行程攻略',  Icon: CalendarDays },
-  { href: '/practical',   label: '出发前关注', Icon: Info },
+  { href: '/',            label: '首页',   Icon: Home },
+  { href: '/destination', label: '地域',   Icon: Globe },
+  { href: '/itinerary',   label: '行程',   Icon: CalendarDays },
+  { href: '/practical',   label: '出发前', Icon: Info },
+  { href: '/memories',    label: '回忆',   Icon: Camera },
 ]
 
 export default function BottomNav() {

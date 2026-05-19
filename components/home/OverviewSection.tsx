@@ -19,11 +19,11 @@ const categoryIcon: Record<string, React.ReactNode> = {
 
 export default function OverviewSection({ trip }: { trip: TripOverview }) {
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20">
       {/* Section heading */}
-      <div className="text-center mb-12">
+      <div className="text-center mb-6 sm:mb-12">
         <p className="text-ocean-600 font-semibold text-sm tracking-widest uppercase mb-3">Trip Overview</p>
-        <h2 className="font-display text-4xl font-bold text-stone-900 mb-4">行程一览</h2>
+        <h2 className="font-display text-3xl sm:text-4xl font-bold text-stone-900 mb-4">行程一览</h2>
         <p className="text-stone-500 max-w-xl mx-auto">
           {trip.totalDays} 天精心规划，每一天都有独特体验等你解锁
         </p>
