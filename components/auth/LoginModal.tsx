@@ -2,7 +2,18 @@
 
 import { useState } from 'react'
 import { X, Mail } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@supabase/supabase-js'
+
+// Use implicit flow for email OTP so the magic link works across any browser/app
+// (PKCE stores a verifier in localStorage which breaks when the link is opened
+// in a different browser, e.g. QQ mail's built-in WebView)
+function createImplicitClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { flowType: 'implicit', detectSessionInUrl: false } }
+  )
+}
 
 interface Props {
   onClose: () => void
@@ -23,7 +34,7 @@ export default function LoginModal({ onClose }: Props) {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const supabase = createClient()
+    const supabase = createImplicitClient()
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: getRedirectTo() },
@@ -42,7 +53,9 @@ export default function LoginModal({ onClose }: Props) {
       alert('请用 Safari 或 Chrome 浏览器打开后再登录，微信内置浏览器不支持 Google 登录。')
       return
     }
-    const supabase = createClient()
+    // Google OAuth keeps PKCE (more secure, same browser flow)
+    const { createClient: createBrowserClient } = await import('@/lib/supabase/client')
+    const supabase = createBrowserClient()
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: getRedirectTo() },
