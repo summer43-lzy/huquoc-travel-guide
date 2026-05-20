@@ -20,7 +20,7 @@ export default function HeroSection({ trip }: { trip: TripOverview }) {
       <div className="absolute inset-0 bg-gradient-to-b from-ocean-900/55 via-ocean-900/40 to-ocean-900/80" />
 
       {/* Content — compact on mobile */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-6 sm:pb-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-3 sm:pb-10">
         {/* Badge */}
         <div className="flex justify-center mb-3 sm:mb-4">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-4 py-1.5 text-sm text-white">

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { MapPin, User, Heart, LogOut } from 'lucide-react'
+import { MapPin, User, Heart, LogOut, Wallet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
@@ -13,10 +13,9 @@ import ShareButton from '@/components/ui/ShareButton'
 const navLinks = [
   { href: '/', label: '首页' },
   { href: '/itinerary', label: '行程攻略' },
-  { href: '/destination', label: '地域介绍' },
   { href: '/practical', label: '出发前关注' },
+  { href: '/destination', label: '地域介绍' },
   { href: '/memories', label: '旅行回忆' },
-  { href: '/expense', label: '记账' },
 ]
 
 export default function Navbar() {
@@ -80,14 +79,21 @@ export default function Navbar() {
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <ShareButton
               label=""
-              className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium text-stone-600 hover:text-ocean-700 hover:bg-ocean-50 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-medium text-stone-600 hover:text-ocean-700 hover:bg-ocean-50 transition-colors"
             />
             <Link
+              href="/expense"
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-medium text-stone-600 hover:text-ocean-700 hover:bg-ocean-50 transition-colors"
+              title="记账"
+            >
+              <Wallet className="w-4 h-4" />
+            </Link>
+            <Link
               href="/profile"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium text-stone-600 hover:text-ocean-700 hover:bg-ocean-50 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-medium text-stone-600 hover:text-ocean-700 hover:bg-ocean-50 transition-colors"
             >
               <Heart className="w-4 h-4" />
               <span className="hidden sm:block">收藏</span>

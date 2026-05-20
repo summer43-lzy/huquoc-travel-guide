@@ -1,25 +1,26 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { X, Copy, Check, Share2, ExternalLink } from 'lucide-react'
 import QRCode from 'qrcode'
 
 const BASE = 'https://summer43-lzy.github.io/huquoc-travel-guide'
 
 const PAGES = [
-  { href: `${BASE}/`,           label: '🏠 首页',       desc: '旅行总览' },
-  { href: `${BASE}/itinerary`,  label: '📅 行程攻略',   desc: '景点·活动·每日安排' },
-  { href: `${BASE}/booking`,    label: '✅ 预订状态',   desc: '实时追踪预订进度' },
-  { href: `${BASE}/expense`,    label: '💰 团队记账',   desc: '消费流水·实时汇率' },
-  { href: `${BASE}/practical`,  label: '🧳 出发前关注', desc: '签证·货币·实用信息' },
-  { href: `${BASE}/destination`,label: '🏝️ 目的地介绍', desc: '富国岛全攻略' },
+  { href: `${BASE}/`,            label: '🏠 首页',       desc: '旅行总览' },
+  { href: `${BASE}/itinerary`,   label: '📅 行程攻略',   desc: '景点·活动·每日安排' },
+  { href: `${BASE}/booking`,     label: '✅ 预订状态',   desc: '实时追踪预订进度' },
+  { href: `${BASE}/expense`,     label: '💰 团队记账',   desc: '消费流水·实时汇率' },
+  { href: `${BASE}/practical`,   label: '🧳 出发前关注', desc: '签证·货币·实用信息' },
+  { href: `${BASE}/destination`, label: '🏝️ 目的地介绍', desc: '富国岛全攻略' },
 ]
 
 interface Props {
   onClose: () => void
 }
 
-export default function ShareModal({ onClose }: Props) {
+function ModalContent({ onClose }: Props) {
   const [qrDataUrl, setQrDataUrl] = useState('')
   const [activeUrl, setActiveUrl] = useState(BASE + '/')
   const [copied, setCopied] = useState(false)
@@ -27,17 +28,20 @@ export default function ShareModal({ onClose }: Props) {
 
   useEffect(() => {
     QRCode.toDataURL(activeUrl, {
-      width: 200,
+      width: 180,
       margin: 2,
       color: { dark: '#0c4a6e', light: '#ffffff' },
     }).then(setQrDataUrl).catch(() => {})
   }, [activeUrl])
 
   useEffect(() => {
-    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = '' }
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
   }, [onClose])
 
   async function copyLink() {
@@ -59,23 +63,24 @@ export default function ShareModal({ onClose }: Props) {
     try {
       await navigator.share({
         title: '富国岛旅行指南',
-        text: '2026年6月富国岛10人团旅行指南 — 行程、景点、餐厅、预订状态一站查看',
+        text: '2026年6月富国岛10人团旅行指南',
         url: activeUrl,
       })
-    } catch {
-      // User cancelled or not supported
-    }
+    } catch {}
   }
 
   const shortUrl = activeUrl.replace('https://summer43-lzy.github.io', '')
 
   return (
+    /* Overlay */
     <div
-      className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0"
+      className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
       onClick={onClose}
     >
+      {/* Panel */}
       <div
-        className="w-full max-w-sm bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh]"
+        className="relative w-full sm:w-96 bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[88vh] sm:max-h-[80vh]"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -84,22 +89,27 @@ export default function ShareModal({ onClose }: Props) {
             <Share2 className="w-4 h-4 text-ocean-600" />
             <h3 className="font-display font-bold text-stone-900">分享给朋友</h3>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-stone-100 transition-colors">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-full hover:bg-stone-100 transition-colors"
+            aria-label="关闭"
+          >
             <X className="w-4 h-4 text-stone-500" />
           </button>
         </div>
 
-        <div className="p-5 space-y-4 overflow-y-auto">
-          {/* QR code */}
+        {/* Scrollable body */}
+        <div className="overflow-y-auto flex-1 p-5 space-y-4">
+          {/* QR Code */}
           <div className="flex flex-col items-center">
             {qrDataUrl ? (
               <img
                 src={qrDataUrl}
                 alt="二维码"
-                className="w-40 h-40 rounded-xl border border-stone-100 shadow-sm"
+                className="w-36 h-36 rounded-xl border border-stone-100 shadow-sm"
               />
             ) : (
-              <div className="w-40 h-40 rounded-xl bg-stone-100 animate-pulse" />
+              <div className="w-36 h-36 rounded-xl bg-stone-100 animate-pulse" />
             )}
             <p className="text-xs text-stone-400 mt-2">手机扫码直接打开</p>
           </div>
@@ -115,11 +125,13 @@ export default function ShareModal({ onClose }: Props) {
                   : 'bg-ocean-100 hover:bg-ocean-200 text-ocean-700'
               }`}
             >
-              {copied ? <><Check className="w-3.5 h-3.5" />已复制</> : <><Copy className="w-3.5 h-3.5" />复制</>}
+              {copied
+                ? <><Check className="w-3.5 h-3.5" />已复制</>
+                : <><Copy className="w-3.5 h-3.5" />复制</>}
             </button>
           </div>
 
-          {/* Native share button */}
+          {/* Native share */}
           {canNativeShare && (
             <button
               onClick={nativeShare}
@@ -132,7 +144,9 @@ export default function ShareModal({ onClose }: Props) {
 
           {/* Page picker */}
           <div>
-            <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2">分享特定页面</p>
+            <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2">
+              分享特定页面
+            </p>
             <div className="space-y-1.5">
               {PAGES.map(page => (
                 <button
@@ -163,7 +177,7 @@ export default function ShareModal({ onClose }: Props) {
             href={activeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 text-xs text-stone-400 hover:text-ocean-600 transition-colors"
+            className="flex items-center justify-center gap-1.5 text-xs text-stone-400 hover:text-ocean-600 transition-colors pb-1"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             在浏览器中打开
@@ -172,4 +186,16 @@ export default function ShareModal({ onClose }: Props) {
       </div>
     </div>
   )
+}
+
+export default function ShareModal({ onClose }: Props) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    return () => setMounted(false)
+  }, [])
+
+  if (!mounted) return null
+  return createPortal(<ModalContent onClose={onClose} />, document.body)
 }
