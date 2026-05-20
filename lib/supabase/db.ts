@@ -1,5 +1,130 @@
 import { createClient } from '@/lib/supabase/client'
 
+// ── Profiles (nickname) ───────────────────────────────────────────────────────
+
+export interface Profile {
+  user_id: string
+  nickname: string
+  created_at: string
+  updated_at: string
+}
+
+export async function getProfile(userId: string): Promise<Profile | null> {
+  const sb = createClient()
+  const { data } = await sb.from('profiles').select('*').eq('user_id', userId).maybeSingle()
+  return data as Profile | null
+}
+
+export async function upsertProfile(userId: string, nickname: string): Promise<void> {
+  const sb = createClient()
+  await sb.from('profiles').upsert(
+    { user_id: userId, nickname, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id' }
+  )
+}
+
+// ── Team members ──────────────────────────────────────────────────────────────
+
+export async function isTeamMember(userId: string): Promise<boolean> {
+  const sb = createClient()
+  const { data } = await sb.from('team_members').select('user_id').eq('user_id', userId).maybeSingle()
+  return !!data
+}
+
+export async function joinTeam(userId: string, nickname: string): Promise<void> {
+  const sb = createClient()
+  await sb.from('team_members').insert({ user_id: userId, nickname })
+}
+
+// ── Expenses ──────────────────────────────────────────────────────────────────
+
+export interface Expense {
+  id: string
+  user_id: string
+  nickname: string
+  amount: number
+  currency: string
+  purpose: string
+  day: number | null
+  image_url: string | null
+  created_at: string
+  updated_at: string
+}
+
+export async function getExpenses(): Promise<Expense[]> {
+  const sb = createClient()
+  const { data } = await sb.from('expenses').select('*').order('created_at', { ascending: false })
+  return (data ?? []) as Expense[]
+}
+
+export async function addExpense(
+  userId: string, nickname: string, amount: number, currency: string,
+  purpose: string, day: number | null, imageUrl: string | null
+): Promise<Expense | null> {
+  const sb = createClient()
+  const { data, error } = await sb.from('expenses').insert({
+    user_id: userId, nickname, amount, currency, purpose,
+    day: day || null, image_url: imageUrl || null,
+  }).select().single()
+  if (error) return null
+  return data as Expense
+}
+
+export async function updateExpense(
+  id: string, amount: number, currency: string,
+  purpose: string, day: number | null, imageUrl: string | null
+): Promise<void> {
+  const sb = createClient()
+  await sb.from('expenses').update({
+    amount, currency, purpose, day: day || null,
+    image_url: imageUrl || null, updated_at: new Date().toISOString(),
+  }).eq('id', id)
+}
+
+export async function deleteExpense(id: string): Promise<void> {
+  const sb = createClient()
+  await sb.from('expenses').delete().eq('id', id)
+}
+
+export async function getMyExpenses(userId: string): Promise<Expense[]> {
+  const sb = createClient()
+  const { data } = await sb.from('expenses').select('*').eq('user_id', userId).order('created_at', { ascending: false })
+  return (data ?? []) as Expense[]
+}
+
+// ── Booking status ────────────────────────────────────────────────────────────
+
+export type BookingItemStatus = 'confirmed' | 'pending' | 'issue'
+
+export interface BookingStatus {
+  item_id: string
+  status: BookingItemStatus
+  updated_by: string | null
+  updated_by_nickname: string | null
+  updated_at: string
+}
+
+export async function getAllBookingStatuses(): Promise<Record<string, BookingItemStatus>> {
+  const sb = createClient()
+  const { data } = await sb.from('booking_status').select('item_id,status')
+  const map: Record<string, BookingItemStatus> = {}
+  for (const row of data ?? []) {
+    map[row.item_id] = row.status as BookingItemStatus
+  }
+  return map
+}
+
+export async function upsertBookingStatus(
+  itemId: string, status: BookingItemStatus,
+  updatedBy: string, updatedByNickname: string
+): Promise<void> {
+  const sb = createClient()
+  await sb.from('booking_status').upsert(
+    { item_id: itemId, status, updated_by: updatedBy, updated_by_nickname: updatedByNickname, updated_at: new Date().toISOString() },
+    { onConflict: 'item_id' }
+  )
+}
+
 // ── Favorites ─────────────────────────────────────────────────────────────────
 
 export async function getFavorites(userId: string) {

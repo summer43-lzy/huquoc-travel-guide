@@ -4,9 +4,8 @@ import { createClient } from '@/lib/supabase/client'
 import { LogIn } from 'lucide-react'
 
 export default function LoginButton() {
-  const supabase = createClient()
-
   async function signInWithGoogle() {
+    const supabase = createClient()
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
