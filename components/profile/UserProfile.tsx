@@ -6,7 +6,7 @@ import { Heart, BookOpen, MapPin, Plus, Globe, Lock, Trash2, Edit3, LogOut, Wall
 import { createClient } from '@/lib/supabase/client'
 import {
   getFavorites, getUserJournals, getFootprints, getUserStats,
-  deleteJournal, getProfile, upsertProfile, getMyExpenses,
+  deleteJournal, getProfile, upsertProfile, updateExpensesNickname, getMyExpenses,
   type Journal, type Footprint, type Expense,
 } from '@/lib/supabase/db'
 import { attractions } from '@/data/attractions'
@@ -53,11 +53,11 @@ export default function UserProfile({ user }: { user: User }) {
   const [showEditor, setShowEditor] = useState(false)
   const [editingJournal, setEditingJournal] = useState<Journal | undefined>()
 
-  // Nickname state
-  const googleName = user.user_metadata?.name ?? user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? '旅行者'
-  const [nickname, setNickname] = useState(googleName)
+  // Nickname state — default to email prefix, overwritten by profile once loaded
+  const emailPrefix = user.email?.split('@')[0] ?? '旅行者'
+  const [nickname, setNickname] = useState(emailPrefix)
   const [editingNickname, setEditingNickname] = useState(false)
-  const [nicknameInput, setNicknameInput] = useState(googleName)
+  const [nicknameInput, setNicknameInput] = useState(emailPrefix)
   const [savingNickname, setSavingNickname] = useState(false)
 
   const avatar = user.user_metadata?.avatar_url
@@ -69,10 +69,9 @@ export default function UserProfile({ user }: { user: User }) {
     getFootprints(user.id).then(setFootprints)
     getMyExpenses(user.id).then(setMyExpenses)
     getProfile(user.id).then(p => {
-      if (p?.nickname) {
-        setNickname(p.nickname)
-        setNicknameInput(p.nickname)
-      }
+      const resolved = p?.nickname || emailPrefix
+      setNickname(resolved)
+      setNicknameInput(resolved)
     })
   }, [user.id])
 
@@ -105,7 +104,10 @@ export default function UserProfile({ user }: { user: User }) {
     const trimmed = nicknameInput.trim()
     if (!trimmed) return
     setSavingNickname(true)
-    await upsertProfile(user.id, trimmed)
+    await Promise.all([
+      upsertProfile(user.id, trimmed),
+      updateExpensesNickname(user.id, trimmed),
+    ])
     setNickname(trimmed)
     setEditingNickname(false)
     setSavingNickname(false)
@@ -144,48 +146,45 @@ export default function UserProfile({ user }: { user: User }) {
                 </div>
               )}
               <div>
-                <h1 className="font-display text-xl font-bold">{googleName}</h1>
+                {/* Nickname — main title, inline edit */}
+                {editingNickname ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={nicknameInput}
+                      onChange={e => setNicknameInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') saveNickname(); if (e.key === 'Escape') cancelNicknameEdit() }}
+                      className="bg-white/20 text-white placeholder-white/50 rounded-lg px-2 py-1 text-sm w-36 focus:outline-none focus:ring-1 focus:ring-white/50 font-display font-bold"
+                      placeholder="输入昵称"
+                      autoFocus
+                      maxLength={20}
+                    />
+                    <button
+                      onClick={saveNickname}
+                      disabled={savingNickname}
+                      className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={cancelNicknameEdit}
+                      className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <h1 className="font-display text-xl font-bold">{nickname}</h1>
+                    <button
+                      onClick={() => { setNicknameInput(nickname); setEditingNickname(true) }}
+                      className="w-5 h-5 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors flex-shrink-0"
+                      title="编辑昵称"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
                 <p className="text-ocean-200 text-sm mt-0.5">{user.email}</p>
-                {/* Nickname edit row */}
-                <div className="mt-2 flex items-center gap-2">
-                  {editingNickname ? (
-                    <>
-                      <input
-                        value={nicknameInput}
-                        onChange={e => setNicknameInput(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') saveNickname(); if (e.key === 'Escape') cancelNicknameEdit() }}
-                        className="bg-white/20 text-white placeholder-white/50 rounded-lg px-2 py-1 text-xs w-32 focus:outline-none focus:ring-1 focus:ring-white/50"
-                        placeholder="输入昵称"
-                        autoFocus
-                        maxLength={20}
-                      />
-                      <button
-                        onClick={saveNickname}
-                        disabled={savingNickname}
-                        className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
-                      >
-                        <Check className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={cancelNicknameEdit}
-                        className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-white/60 text-xs">昵称：{nickname}</span>
-                      <button
-                        onClick={() => { setNicknameInput(nickname); setEditingNickname(true) }}
-                        className="w-5 h-5 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors"
-                        title="编辑昵称"
-                      >
-                        <Edit3 className="w-3 h-3" />
-                      </button>
-                    </>
-                  )}
-                </div>
               </div>
             </div>
             <button

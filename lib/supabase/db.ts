@@ -42,6 +42,7 @@ export interface Expense {
   id: string
   user_id: string
   nickname: string
+  payer: string | null   // actual payer name; null on old records → falls back to nickname
   amount: number
   currency: string
   purpose: string
@@ -58,12 +59,12 @@ export async function getExpenses(): Promise<Expense[]> {
 }
 
 export async function addExpense(
-  userId: string, nickname: string, amount: number, currency: string,
+  userId: string, nickname: string, payer: string, amount: number, currency: string,
   purpose: string, day: number | null, imageUrl: string | null
 ): Promise<Expense | null> {
   const sb = createClient()
   const { data, error } = await sb.from('expenses').insert({
-    user_id: userId, nickname, amount, currency, purpose,
+    user_id: userId, nickname, payer, amount, currency, purpose,
     day: day || null, image_url: imageUrl || null,
   }).select().single()
   if (error) return null
@@ -71,14 +72,19 @@ export async function addExpense(
 }
 
 export async function updateExpense(
-  id: string, amount: number, currency: string,
+  id: string, payer: string, amount: number, currency: string,
   purpose: string, day: number | null, imageUrl: string | null
 ): Promise<void> {
   const sb = createClient()
   await sb.from('expenses').update({
-    amount, currency, purpose, day: day || null,
+    payer, amount, currency, purpose, day: day || null,
     image_url: imageUrl || null, updated_at: new Date().toISOString(),
   }).eq('id', id)
+}
+
+export async function updateExpensesNickname(userId: string, newNickname: string): Promise<void> {
+  const sb = createClient()
+  await sb.from('expenses').update({ nickname: newNickname }).eq('user_id', userId)
 }
 
 export async function deleteExpense(id: string): Promise<void> {

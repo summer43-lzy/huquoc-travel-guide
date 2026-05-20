@@ -113,6 +113,7 @@ function ExpenseForm({
   const [currency, setCurrency] = useState<Currency>((existing?.currency as Currency) ?? 'VND')
   const [purpose, setPurpose] = useState(existing?.purpose ?? '')
   const [day, setDay] = useState(existing?.day ?? 0)
+  const [payer, setPayer] = useState(existing?.payer ?? nickname)
   const [imageUrl, setImageUrl] = useState(existing?.image_url ?? '')
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -139,11 +140,12 @@ function ExpenseForm({
     if (!amount || !purpose) return
     setSaving(true)
     const num = parseFloat(amount)
+    const payerVal = payer.trim() || nickname
     if (existing) {
-      await updateExpense(existing.id, num, currency, purpose, day || null, imageUrl || null)
-      onSaved({ ...existing, amount: num, currency, purpose, day: day || null, image_url: imageUrl || null })
+      await updateExpense(existing.id, payerVal, num, currency, purpose, day || null, imageUrl || null)
+      onSaved({ ...existing, payer: payerVal, amount: num, currency, purpose, day: day || null, image_url: imageUrl || null })
     } else {
-      const created = await addExpense(userId, nickname, num, currency, purpose, day || null, imageUrl || null)
+      const created = await addExpense(userId, nickname, payerVal, num, currency, purpose, day || null, imageUrl || null)
       if (created) onSaved(created)
     }
     setSaving(false)
@@ -203,6 +205,20 @@ function ExpenseForm({
               maxLength={60}
               className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-ocean-400"
             />
+          </div>
+
+          {/* Payer */}
+          <div>
+            <label className="text-xs font-semibold text-stone-500 mb-1.5 block">支出人</label>
+            <input
+              type="text"
+              value={payer}
+              onChange={e => setPayer(e.target.value)}
+              placeholder="实际付款的人"
+              maxLength={20}
+              className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-ocean-400"
+            />
+            <p className="text-xs text-stone-400 mt-1">默认为记账人本人，AA 结算按支出人计算</p>
           </div>
 
           {/* Day */}
@@ -296,7 +312,8 @@ function computeBalances(expenses: Expense[], rates: Rates, headCount: number): 
   const share = headCount > 0 ? totalCNY / headCount : 0
   const paid: Record<string, number> = {}
   for (const e of expenses) {
-    paid[e.nickname] = (paid[e.nickname] ?? 0) + toCNY(e.amount, e.currency as Currency, rates)
+    const name = e.payer ?? e.nickname
+    paid[name] = (paid[name] ?? 0) + toCNY(e.amount, e.currency as Currency, rates)
   }
   return Object.entries(paid).map(([nickname, p]) => ({
     nickname,
@@ -348,7 +365,7 @@ function SettlementTab({
   function copySettlement() {
     const lines: string[] = [
       `【富国岛旅行 AA 结算】`,
-      `总消费：¥${totalCNY.toFixed(1)}，人均：¥${share.toFixed(1)}（${headCount}人）`,
+      `总消费：¥${totalCNY.toFixed(1)}，人均：¥${share.toFixed(1)}（${headCount}人，按支出人统计）`,
       '',
       '─ 每人账单 ─',
       ...balances.map(b =>
@@ -704,7 +721,7 @@ export default function ExpensePage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-xs text-stone-500 font-medium">{e.nickname}</span>
+                            <span className="text-xs text-stone-500 font-medium">{e.payer ?? e.nickname}</span>
                             {dayLabel && (
                               <span className="text-xs bg-ocean-50 text-ocean-600 px-2 py-0.5 rounded-full">{dayLabel}</span>
                             )}
