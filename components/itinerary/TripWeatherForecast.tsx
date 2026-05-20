@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { usePullToRefresh } from '@/lib/usePullToRefresh'
 
 // Trip dates for labelling
 const TRIP_DAY_LABELS: Record<string, string> = {
@@ -45,45 +46,64 @@ export default function TripWeatherForecast() {
   const [loading, setLoading] = useState(true)
   const [fetchedAt, setFetchedAt] = useState('')
 
-  useEffect(() => {
+  const fetchWeather = useCallback(async () => {
+    setLoading(true)
     const today = todayVietnam()
-
-    fetch('https://wttr.in/Phu+Quoc?format=j1')
-      .then(r => r.json())
-      .then((json: {
+    try {
+      const r = await fetch('https://wttr.in/Phu+Quoc?format=j1')
+      const json: {
         weather?: {
           date: string
           maxtempC: string
           mintempC: string
           hourly?: { weatherDesc?: { value: string }[] }[]
         }[]
-      }) => {
-        const weatherArr = json.weather ?? []
-        const parsed: DayForecast[] = weatherArr.map(w => {
-          const maxC = w.maxtempC
-          const minC = w.mintempC
-          const desc = w.hourly?.[4]?.weatherDesc?.[0]?.value ?? ''
-          return {
-            date: w.date,
-            maxC,
-            minC,
-            desc,
-            icon: iconForWeather(desc, parseInt(maxC)),
-            isToday: w.date === today,
-            tripLabel: TRIP_DAY_LABELS[w.date] ?? null,
-          }
-        })
-        setForecasts(parsed)
-        // Record time for freshness indicator
-        const now = new Date(Date.now() + 7 * 3_600_000)
-        setFetchedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`)
+      } = await r.json()
+      const weatherArr = json.weather ?? []
+      const parsed: DayForecast[] = weatherArr.map(w => {
+        const maxC = w.maxtempC
+        const minC = w.mintempC
+        const desc = w.hourly?.[4]?.weatherDesc?.[0]?.value ?? ''
+        return {
+          date: w.date,
+          maxC,
+          minC,
+          desc,
+          icon: iconForWeather(desc, parseInt(maxC)),
+          isToday: w.date === today,
+          tripLabel: TRIP_DAY_LABELS[w.date] ?? null,
+        }
       })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+      setForecasts(parsed)
+      const now = new Date(Date.now() + 7 * 3_600_000)
+      setFetchedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`)
+    } catch {}
+    setLoading(false)
   }, [])
+
+  const { refreshing: pulling, pullY } = usePullToRefresh(fetchWeather)
+
+  useEffect(() => {
+    fetchWeather()
+  }, [fetchWeather])
 
   return (
     <div className="mb-6">
+      {/* Pull-to-refresh indicator */}
+      <div
+        style={{
+          height: pulling ? 36 : pullY * 0.45,
+          opacity: Math.min((pulling ? 70 : pullY) / 70, 1),
+        }}
+        className="flex items-center justify-center overflow-hidden -mt-1 mb-1"
+      >
+        {pulling ? (
+          <div className="w-4 h-4 border-2 border-ocean-500 border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <p className="text-xs text-stone-400">{pullY >= 70 ? '松手刷新天气' : '↓ 下拉刷新天气'}</p>
+        )}
+      </div>
+
       <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-stone-700">🌤️ 富国岛天气预报</span>
@@ -101,7 +121,12 @@ export default function TripWeatherForecast() {
       {loading ? (
         <div className="grid grid-cols-3 gap-3">
           {[0, 1, 2].map(i => (
-            <div key={i} className="h-24 bg-stone-100 rounded-xl animate-pulse" />
+            <div key={i} className="bg-white border border-stone-100 rounded-xl p-2.5 flex flex-col items-center gap-1.5 animate-pulse">
+              <div className="w-14 h-2.5 bg-stone-100 rounded-full" />
+              <div className="w-8 h-8 bg-stone-100 rounded-full mt-1" />
+              <div className="w-12 h-3 bg-stone-100 rounded-full" />
+              <div className="w-16 h-2.5 bg-stone-100 rounded-full" />
+            </div>
           ))}
         </div>
       ) : forecasts.length === 0 ? (
@@ -134,7 +159,6 @@ export default function TripWeatherForecast() {
                     {fc.isToday ? '今天' : formatDateLabel(fc.date)}
                   </p>
                 )}
-                {/* Show actual date under trip label */}
                 {fc.tripLabel && (
                   <p className={`text-xs ${fc.isToday ? 'text-ocean-200' : 'text-stone-400'}`}>
                     {formatDateLabel(fc.date)}

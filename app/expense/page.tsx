@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Plus, Trash2, Edit3, X, Loader2, Upload, ChevronDown, LogIn, Lock, Copy, Check, Users, ArrowRight } from 'lucide-react'
+import { Plus, Trash2, Edit3, X, Loader2, Upload, ChevronDown, LogIn, Copy, Users, ArrowRight } from 'lucide-react'
+import Toast from '@/components/ui/Toast'
+import { usePullToRefresh } from '@/lib/usePullToRefresh'
 import { createClient } from '@/lib/supabase/client'
 import {
   getExpenses, addExpense, updateExpense, deleteExpense,
@@ -162,13 +164,14 @@ function ExpenseForm({
             <X className="w-4 h-4 text-stone-500" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="p-4 space-y-3 overflow-y-auto flex-1">
+        <form onSubmit={handleSubmit} className="p-4 space-y-3 overflow-y-auto overscroll-contain flex-1">
           {/* Amount + Currency */}
           <div>
             <label className="text-xs font-semibold text-stone-500 mb-1.5 block">金额 *</label>
             <div className="flex gap-2">
               <input
                 type="number"
+                inputMode="decimal"
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0"
@@ -199,6 +202,7 @@ function ExpenseForm({
             <label className="text-xs font-semibold text-stone-500 mb-1.5 block">用途 *</label>
             <input
               type="text"
+              inputMode="text"
               value={purpose}
               onChange={e => setPurpose(e.target.value)}
               placeholder="如：晚餐、缆车票、打车费…"
@@ -212,6 +216,7 @@ function ExpenseForm({
             <label className="text-xs font-semibold text-stone-500 mb-1.5 block">支出人</label>
             <input
               type="text"
+              inputMode="text"
               value={payer}
               onChange={e => setPayer(e.target.value)}
               placeholder="实际付款的人"
@@ -353,7 +358,7 @@ function SettlementTab({
   expenses, rates, rateLoading,
 }: { expenses: Expense[]; rates: Rates; rateLoading: boolean }) {
   const [headCount, setHeadCount] = useState(10)
-  const [copied, setCopied] = useState(false)
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
 
   const totalCNY = expenses.reduce((s, e) => s + toCNY(e.amount, e.currency as Currency, rates), 0)
   const share = headCount > 0 ? totalCNY / headCount : 0
@@ -377,8 +382,8 @@ function SettlementTab({
       ...transfers.map(t => `${t.from} → ${t.to}  ¥${t.amount.toFixed(1)}`),
     ]
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setToastMsg('已复制！粘贴到微信群即可')
+      setTimeout(() => setToastMsg(null), 2000)
     })
   }
 
@@ -496,10 +501,11 @@ function SettlementTab({
           onClick={copySettlement}
           className="w-full flex items-center justify-center gap-2 py-3 bg-ocean-600 hover:bg-ocean-500 text-white font-semibold rounded-2xl transition-colors text-sm"
         >
-          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-          {copied ? '已复制！粘贴到微信群即可' : '复制结算文本'}
+          <Copy className="w-4 h-4" />
+          复制结算文本
         </button>
       )}
+      <Toast message={toastMsg ?? ''} visible={!!toastMsg} />
     </div>
   )
 }
@@ -518,6 +524,11 @@ export default function ExpensePage() {
   const [showLogin, setShowLogin] = useState(false)
   const [showDayFilter, setShowDayFilter] = useState<number | 'all'>('all')
   const [activeTab, setActiveTab] = useState<'ledger' | 'settle'>('ledger')
+
+  const { refreshing: pullRefreshing, pullY } = usePullToRefresh(async () => {
+    const data = await getExpenses()
+    setExpenses(data)
+  })
 
   useEffect(() => {
     const sb = createClient()
@@ -658,6 +669,21 @@ export default function ExpensePage() {
           </div>
         </div>
 
+        {/* Pull-to-refresh indicator */}
+        <div
+          style={{
+            height: pullRefreshing ? 40 : pullY * 0.5,
+            opacity: Math.min((pullRefreshing ? 70 : pullY) / 70, 1),
+          }}
+          className="flex items-center justify-center overflow-hidden"
+        >
+          {pullRefreshing ? (
+            <div className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <p className="text-xs text-white/60">{pullY >= 70 ? '松手刷新' : '↓ 下拉刷新'}</p>
+          )}
+        </div>
+
         {/* ── Ledger tab ── */}
         {activeTab === 'ledger' && (
           <div className="max-w-2xl mx-auto px-4 py-5">
@@ -692,7 +718,18 @@ export default function ExpensePage() {
             {filtered.length === 0 ? (
               <div className="text-center py-20 bg-white rounded-2xl border border-stone-100">
                 <div className="text-4xl mb-3">💸</div>
-                <p className="text-stone-500 text-sm">还没有记录，点击右上角"记账"添加</p>
+                <p className="text-stone-500 text-sm mb-4">
+                  {showDayFilter === 'all' ? '还没有记录，快来记第一笔' : '这天还没有记录'}
+                </p>
+                {showDayFilter === 'all' && (
+                  <button
+                    onClick={() => { setEditTarget(undefined); setShowForm(true) }}
+                    className="inline-flex items-center gap-2 bg-ocean-600 hover:bg-ocean-500 text-white rounded-full px-5 py-2.5 text-sm font-semibold transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    添加第一笔
+                  </button>
+                )}
               </div>
             ) : (
               <div className="space-y-3">

@@ -91,6 +91,7 @@ export default function ItineraryPage() {
                     <img
                       src={attraction.image}
                       alt={attraction.name}
+                      loading="lazy"
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 image-overlay" />

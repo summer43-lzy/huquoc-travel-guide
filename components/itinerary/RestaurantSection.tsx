@@ -215,6 +215,7 @@ export default function RestaurantSection() {
                 <img
                   src={r.image}
                   alt={r.name}
+                  loading="lazy"
                   className="w-full h-full object-cover"
                   style={{ minHeight: '120px' }}
                 />
