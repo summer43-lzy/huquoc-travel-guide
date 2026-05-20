@@ -1,6 +1,7 @@
 import { Calendar, Users, Hotel, Waves } from 'lucide-react'
 import Link from 'next/link'
 import { TripOverview } from '@/types'
+import ShareButton from '@/components/ui/ShareButton'
 
 const dayColors = ['bg-ocean-500', 'bg-violet-500', 'bg-emerald-500', 'bg-amber-500']
 
@@ -89,8 +90,8 @@ export default function HeroSection({ trip }: { trip: TripOverview }) {
           ))}
         </div>
 
-        {/* CTAs — side-by-side on all screen sizes */}
-        <div className="flex flex-row items-center justify-center gap-2 sm:gap-3">
+        {/* CTAs */}
+        <div className="flex flex-row items-center justify-center gap-2 sm:gap-3 flex-wrap">
           <Link
             href="/itinerary"
             className="flex-1 sm:flex-none text-center px-5 sm:px-7 py-2.5 sm:py-3 bg-ocean-600 hover:bg-ocean-500 text-white font-semibold rounded-full transition-colors shadow-lg text-sm"
@@ -103,6 +104,10 @@ export default function HeroSection({ trip }: { trip: TripOverview }) {
           >
             目的地介绍
           </Link>
+          <ShareButton
+            label="邀请朋友"
+            className="flex-shrink-0 flex items-center gap-1.5 px-4 sm:px-5 py-2.5 sm:py-3 bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/30 text-white font-semibold rounded-full transition-colors text-sm"
+          />
         </div>
       </div>
     </section>
