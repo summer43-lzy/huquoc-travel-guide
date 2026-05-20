@@ -9,50 +9,25 @@ import DayOverviewCard from '@/components/itinerary/DayOverviewCard'
 import TripWeatherForecast from '@/components/itinerary/TripWeatherForecast'
 import CopyAddressButton from '@/components/ui/CopyAddressButton'
 import BookingSummaryCard from '@/components/home/BookingSummaryCard'
+import ItineraryBanner from '@/components/itinerary/ItineraryBanner'
 
 export default function ItineraryPage() {
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Header */}
-      <div className="relative h-64 sm:h-80 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1600&q=80"
-          alt="富国岛海滩"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-ocean-900/50 to-ocean-900/70" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4">
-          <p className="text-ocean-200 text-sm font-medium tracking-widest uppercase mb-3">Itinerary & Attractions</p>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold mb-3">行程攻略</h1>
-          <p className="text-white/80 max-w-md">精选景点、餐厅、活动，每一处都值得期待</p>
-        </div>
-      </div>
+      {/* Banner with Day nav tabs */}
+      <ItineraryBanner />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-        {/* Day-by-day quick nav */}
-        <div className="sticky top-16 z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 bg-stone-50/95 backdrop-blur-sm border-b border-stone-100 pt-3 pb-2 mb-8">
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide">
-            {tripData.days.map(day => (
-              <a
-                key={day.day}
-                href={`#day-${day.day}`}
-                className="flex-shrink-0 bg-white border border-stone-200 hover:border-ocean-400 hover:shadow-md rounded-xl px-4 py-2.5 text-sm font-medium text-stone-600 hover:text-ocean-700 transition-all"
-              >
-                <span className="text-xs text-stone-400 block">Day {day.day}</span>
-                <span className="truncate max-w-28 block">{day.title.split('·')[0].trim()}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* 4-day weather forecast — visible from May 31 through end of trip */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        {/* 4-day weather forecast */}
         <TripWeatherForecast />
 
         {/* Booking progress */}
         <BookingSummaryCard className="mb-8" />
 
-        {/* Top 10 Restaurants */}
-        <RestaurantSection />
+        {/* Top Restaurants — anchored */}
+        <div id="restaurants" className="scroll-mt-6">
+          <RestaurantSection />
+        </div>
 
         {/* Day sections */}
         {tripData.days.map(day => (

@@ -21,9 +21,9 @@ const cuisineOptions: { value: CuisineType | 'all'; label: string }[] = [
 ]
 
 const priceLabel: Record<string, string> = {
-  '¥': '实惠 < ¥100',
-  '¥¥': '中档 ¥100–300',
-  '¥¥¥': '高档 > ¥300',
+  '¥': '人均 < ¥100',
+  '¥¥': '人均 ¥100–300',
+  '¥¥¥': '人均 > ¥300',
 }
 
 // Map each trip day to recommended restaurant IDs based on that day's ending area
@@ -69,7 +69,7 @@ function TonightRecommendation() {
               <p className="text-xs font-semibold text-stone-800 leading-tight">{r.name}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="text-amber-500 text-[10px]">★ {r.googleRating}</span>
-                <span className="text-stone-400 text-[10px]">{r.priceRange}</span>
+                <span className="text-stone-400 text-[10px]">{priceLabel[r.priceRange]}</span>
                 <OpenStatus openHours={r.openHours} />
               </div>
             </div>
@@ -257,7 +257,7 @@ export default function RestaurantSection() {
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   <span className="bg-ocean-50 text-ocean-700 rounded-full px-2.5 py-0.5 text-xs font-medium">{r.cuisine}</span>
-                  <span className="bg-stone-100 text-stone-500 rounded-full px-2.5 py-0.5 text-xs">{r.priceRange} {priceLabel[r.priceRange]}</span>
+                  <span className="bg-stone-100 text-stone-500 rounded-full px-2.5 py-0.5 text-xs">{priceLabel[r.priceRange]}</span>
                   {r.tags.slice(0, 2).map(t => (
                     <span key={t} className="bg-stone-100 text-stone-500 rounded-full px-2.5 py-0.5 text-xs">{t}</span>
                   ))}

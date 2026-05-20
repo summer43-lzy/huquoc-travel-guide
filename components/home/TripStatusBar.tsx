@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ChevronRight, ClipboardCheck, Wallet } from 'lucide-react'
+import { ChevronRight, ClipboardCheck, Coins } from 'lucide-react'
 
 const bookingItems = [
   { id: 'hotel-lafesta',  status: 'confirmed' },
@@ -86,7 +86,7 @@ export default function TripStatusBar() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-ocean-50 flex items-center justify-center flex-shrink-0">
-                <Wallet className="w-3.5 h-3.5 text-ocean-600" />
+                <Coins className="w-3.5 h-3.5 text-ocean-600" />
               </div>
               <span className="text-xs font-semibold text-stone-600">团队记账</span>
             </div>

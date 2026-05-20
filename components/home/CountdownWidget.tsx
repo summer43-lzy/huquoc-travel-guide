@@ -198,32 +198,26 @@ export default function CountdownWidget() {
           )}
         </div>
 
-        {/* 3 core entry cards */}
-        <div className="px-5 py-4 grid grid-cols-3 gap-3">
-          <Link
-            href="/practical#visa"
-            className="bg-white/15 hover:bg-white/25 rounded-xl px-3 py-2.5 text-center transition-colors"
-          >
-            <p className="text-base mb-1">🛂</p>
-            <p className="font-semibold text-xs">签证信息</p>
-            <p className="text-ocean-200 text-[10px] mt-0.5">越南免签政策</p>
-          </Link>
-          <Link
-            href="/practical#packing"
-            className="bg-white/15 hover:bg-white/25 rounded-xl px-3 py-2.5 text-center transition-colors"
-          >
-            <p className="text-base mb-1">🧳</p>
-            <p className="font-semibold text-xs">打包清单</p>
-            <p className="text-ocean-200 text-[10px] mt-0.5">行李必备物品</p>
-          </Link>
-          <Link
-            href="/practical"
-            className="bg-white/15 hover:bg-white/25 rounded-xl px-3 py-2.5 text-center transition-colors"
-          >
-            <p className="text-base mb-1">✅</p>
-            <p className="font-semibold text-xs">出发检查</p>
-            <p className="text-ocean-200 text-[10px] mt-0.5">出发前行动清单</p>
-          </Link>
+        {/* 4 core entry cards — icon left, text right, 4-col both mobile + desktop */}
+        <div className="px-4 py-3 grid grid-cols-4 gap-2">
+          {[
+            { href: '/practical#visa',     emoji: '🛂', label: '签证',   sub: '免签政策' },
+            { href: '/practical#packing',  emoji: '🧳', label: '打包',   sub: '行李清单' },
+            { href: '/practical',          emoji: '✅', label: '出发前', sub: '行动清单' },
+            { href: '/practical#currency', emoji: '💱', label: '换算',   sub: '越南盾' },
+          ].map(item => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="bg-white/15 hover:bg-white/25 rounded-xl px-2 py-2.5 flex items-center gap-2 transition-colors min-w-0"
+            >
+              <span className="text-base flex-shrink-0">{item.emoji}</span>
+              <div className="min-w-0">
+                <p className="font-semibold text-xs leading-tight truncate">{item.label}</p>
+                <p className="text-ocean-200 text-[10px] leading-tight truncate">{item.sub}</p>
+              </div>
+            </Link>
+          ))}
         </div>
 
         {/* CTA */}

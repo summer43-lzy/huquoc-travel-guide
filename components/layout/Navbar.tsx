@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { MapPin, User, Heart, LogOut, Wallet } from 'lucide-react'
+import { MapPin, User, Heart, LogOut, Coins } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
@@ -89,7 +89,7 @@ export default function Navbar() {
               className="flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-medium text-stone-600 hover:text-ocean-700 hover:bg-ocean-50 transition-colors"
               title="记账"
             >
-              <Wallet className="w-4 h-4" />
+              <Coins className="w-4 h-4" />
             </Link>
             <Link
               href="/profile"
