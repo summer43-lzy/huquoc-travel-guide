@@ -210,8 +210,8 @@ export default function PracticalPage() {
         </div>
       </div>
 
-      {/* Quick nav */}
-      <div className="sticky top-16 z-30 bg-white/95 backdrop-blur-sm border-b border-stone-100 shadow-sm">
+      {/* Quick nav — hidden on mobile first screen, visible on sm+ */}
+      <div className="hidden sm:block sticky top-16 z-30 bg-white/95 backdrop-blur-sm border-b border-stone-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex gap-1 overflow-x-auto py-3 scrollbar-hide">
             {allSections.map(s => (
@@ -290,6 +290,36 @@ export default function PracticalPage() {
             </div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Pre-departure daily checklist */}
+            <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-display font-bold text-stone-900">出门前检查</h3>
+                  <p className="text-xs text-stone-400 mt-0.5">每天早上出门前确认一遍</p>
+                </div>
+                <span className="text-2xl">✅</span>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { item: '护照', sub: '有效期确认，放在随身包' },
+                  { item: '房卡 / 手机', sub: '酒店房卡不要留在房间' },
+                  { item: '现金（越南盾）', sub: '夜市和摊位只收现金' },
+                  { item: '防晒霜', sub: '热带紫外线强，出门必备' },
+                  { item: '充电宝', sub: '行程较长，备用电量重要' },
+                  { item: '雨具', sub: '6月午后可能短暂阵雨' },
+                  { item: '常备药', sub: '晕船药、肠胃药、止泻药' },
+                ].map(c => (
+                  <div key={c.item} className="flex items-start gap-3 p-2.5 bg-stone-50 rounded-xl">
+                    <div className="w-4 h-4 rounded border-2 border-stone-300 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-stone-800 text-sm">{c.item}</p>
+                      <p className="text-xs text-stone-400 mt-0.5">{c.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div id="currency" className="scroll-mt-28"><CurrencyConverter /></div>
             <div id="packing" className="scroll-mt-28"><PackingChecklist /></div>
             <div id="phrases" className="scroll-mt-28"><PhrasesCard /></div>

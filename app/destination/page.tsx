@@ -62,35 +62,54 @@ export default function DestinationPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-        {/* Intro */}
-        <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-14">
-          <p className="text-ocean-600 font-semibold text-sm tracking-widest uppercase mb-3">About Phu Quoc</p>
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-stone-900 mb-4">珍珠岛</h2>
-          <p className="text-stone-600 leading-relaxed text-lg">
-            富国岛被誉为"东南亚的马尔代夫"，拥有绵延数十公里的白色沙滩、清澈见底的翡翠色海水，
-            以及覆盖全岛三分之二面积的原始热带雨林。近年来大力发展旅游业，
-            已成为东南亚最受欢迎的度假目的地之一。
-          </p>
-        </div>
-
-        {/* Stats banner — above map */}
+        {/* Merged: 珍珠岛介绍 + 数字对比 */}
         <section className="mb-12 bg-gradient-to-br from-ocean-600 to-ocean-800 rounded-3xl p-8 text-white">
-          <div className="text-center mb-6">
-            <h2 className="font-display text-2xl font-bold mb-1">富国岛数字</h2>
-            <p className="text-ocean-200 text-sm">一眼了解这座岛屿的规模</p>
+          <div className="text-center mb-8">
+            <p className="text-ocean-300 font-semibold text-xs tracking-widest uppercase mb-2">About Phu Quoc</p>
+            <h2 className="font-display text-3xl font-bold mb-3">珍珠岛</h2>
+            <p className="text-ocean-100 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
+              富国岛被誉为"东南亚的马尔代夫"，拥有绵延数十公里的白色沙滩、清澈见底的翡翠色海水，以及覆盖全岛半数以上面积的原始热带雨林。从北到南开车不过一小时，却能涵盖雨林、渔村、白沙滩与世界最长跨海缆车——这就是它独特的魅力。
+            </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { number: '574', unit: 'km²', label: '岛屿面积' },
-              { number: '150+', unit: 'km', label: '海岸线长度' },
-              { number: '31,000+', unit: '公顷', label: '国家公园面积' },
-              { number: '150+', unit: '种', label: '动物园物种数' },
+              {
+                number: '574',
+                unit: 'km²',
+                label: '岛屿面积',
+                compare: '约等于 1.5 个新加坡',
+                sub: '比普吉岛还略大，北到南开车约1小时',
+              },
+              {
+                number: '150+',
+                unit: 'km',
+                label: '海岸线长度',
+                compare: '比三亚整段海岸还长',
+                sub: '西海岸是全球数一数二的日落观赏地',
+              },
+              {
+                number: '31,000+',
+                unit: '公顷',
+                label: '国家公园面积',
+                compare: '相当于 43 个西湖景区',
+                sub: '覆盖全岛超过50%，联合国生物圈保护区',
+              },
+              {
+                number: '8',
+                unit: 'km',
+                label: '跨海缆车全长',
+                compare: '北京八达岭缆车的 16 倍',
+                sub: '世界最长跨海缆车，吉尼斯纪录认证',
+              },
             ].map(stat => (
-              <div key={stat.label}>
-                <div className="font-display text-3xl font-bold text-sand-300">
-                  {stat.number}<span className="text-base ml-0.5">{stat.unit}</span>
+              <div key={stat.label} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <div className="font-display text-3xl font-bold text-sand-300 mb-0.5">
+                  {stat.number}<span className="text-lg ml-0.5">{stat.unit}</span>
                 </div>
-                <div className="text-ocean-100 text-sm mt-1">{stat.label}</div>
+                <div className="text-white font-semibold text-sm mb-1">{stat.label}</div>
+                <div className="text-ocean-200 text-xs font-medium mb-1">{stat.compare}</div>
+                <div className="text-ocean-300 text-xs leading-relaxed">{stat.sub}</div>
               </div>
             ))}
           </div>

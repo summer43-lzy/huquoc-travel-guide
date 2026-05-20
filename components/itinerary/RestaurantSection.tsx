@@ -8,6 +8,7 @@ import OpenStatus from '@/components/ui/OpenStatus'
 import { cn } from '@/lib/utils'
 
 type SortKey = 'distance' | 'rating'
+type GroupFilter = 'all' | 'group'
 
 const cuisineOptions: { value: CuisineType | 'all'; label: string }[] = [
   { value: 'all', label: '全部菜式' },
@@ -92,15 +93,17 @@ function StarRatingDisplay({ rating }: { rating: number }) {
 export default function RestaurantSection() {
   const [sortKey, setSortKey] = useState<SortKey>('rating')
   const [cuisine, setCuisine] = useState<CuisineType | 'all'>('all')
+  const [groupFilter, setGroupFilter] = useState<GroupFilter>('all')
   const [expanded, setExpanded] = useState<string | null>(null)
 
   const filtered = useMemo(() => {
     let list = cuisine === 'all' ? restaurants : restaurants.filter(r => r.cuisine === cuisine)
+    if (groupFilter === 'group') list = list.filter(r => r.groupFriendly)
     list = [...list].sort((a, b) =>
       sortKey === 'distance' ? a.distanceKm - b.distanceKm : b.googleRating - a.googleRating
     )
     return list
-  }, [sortKey, cuisine])
+  }, [sortKey, cuisine, groupFilter])
 
   return (
     <section className="mb-16">
@@ -151,6 +154,22 @@ export default function RestaurantSection() {
                 </span>
               </button>
             </div>
+          </div>
+
+          {/* Group friendly filter */}
+          <div>
+            <p className="text-xs font-semibold text-stone-500 mb-2">10人团队</p>
+            <button
+              onClick={() => setGroupFilter(groupFilter === 'group' ? 'all' : 'group')}
+              className={cn(
+                'px-4 py-2 rounded-full text-sm font-medium transition-colors border',
+                groupFilter === 'group'
+                  ? 'bg-emerald-600 text-white border-emerald-600'
+                  : 'bg-white text-stone-600 border-stone-200 hover:border-emerald-300'
+              )}
+            >
+              👨‍👩‍👧‍👦 适合10人团
+            </button>
           </div>
 
           <div className="sm:ml-auto">

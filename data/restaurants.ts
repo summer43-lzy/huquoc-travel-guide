@@ -6,18 +6,19 @@ export interface Restaurant {
   name: string
   nameEn: string
   cuisine: CuisineType
-  distanceKm: number        // from Hilton Phu Quoc Ixora Resort
-  googleRating: number      // Google Maps rating
-  googleReviews: number     // number of reviews
+  distanceKm: number
+  googleRating: number
+  googleReviews: number
   priceRange: '¥' | '¥¥' | '¥¥¥'
   description: string
-  specialty: string[]       // signature dishes
+  specialty: string[]
   image: string
   address: string
   openHours: string
   tips: string[]
   tags: string[]
   mustTry: boolean
+  groupFriendly: boolean      // suitable for 10-person group (big table, no reservation issues)
   reviews?: { author: string; text: string; rating: number }[]
 }
 
@@ -42,6 +43,7 @@ export const restaurants: Restaurant[] = [
     tips: ['日落时分（18:00–19:30）订位最美', '10人团队建议提前1天预订', '含早餐住客早餐也在此用餐'],
     tags: ['酒店餐厅', '海景', '海鲜', '团队聚餐'],
     mustTry: true,
+    groupFriendly: true,
     reviews: [
       { author: 'David L.', text: 'The sunset view while dining is absolutely magical. Lobster was incredibly fresh — best meal of the trip.', rating: 5 },
       { author: '小林', text: '海景无敌，龙虾肥美。服务非常周到，强烈推荐日落时段订位！', rating: 5 },
@@ -66,6 +68,7 @@ export const restaurants: Restaurant[] = [
     tips: ['涨潮时段（下午）海浪最美', '无预约只接受到店，建议避开12:00–14:00高峰', '现点现杀海鲜，价格透明'],
     tags: ['海滩餐厅', '烤海鲜', '网红打卡', '自然风光'],
     mustTry: true,
+    groupFriendly: true,
     reviews: [
       { author: '阿杰', text: '脱鞋坐在沙滩上吃烤龙虾，海浪声就在旁边，这辈子最美的用餐体验。', rating: 5 },
       { author: 'Emma K.', text: 'Grilled seafood right on the beach with your feet in the sand. The coconut ice cream is a must!', rating: 5 },
@@ -90,6 +93,7 @@ export const restaurants: Restaurant[] = [
     tips: ['海鲜饭需提前30分钟预点', '露台座位需预约', '周末有现场音乐演奏'],
     tags: ['西班牙料理', '地中海', '浪漫约会', '精品餐厅'],
     mustTry: false,
+    groupFriendly: false,
     reviews: [
       { author: 'Marco R.', text: 'Authentic Spanish paella in Vietnam — the chef is the real deal. Octopus was perfectly grilled.', rating: 5 },
       { author: '雯雯', text: '地中海风格装修，浪漫氛围满分。海鲜饭需要提前预点，值得等！', rating: 5 },
@@ -114,6 +118,7 @@ export const restaurants: Restaurant[] = [
     tips: ['餐吧氛围浓，适合团队聚会', '下午4点前用餐有早鸟优惠', '必点特色热带水果鸡尾酒'],
     tags: ['亚洲融合', '鸡尾酒', '团队聚会', '夜生活'],
     mustTry: false,
+    groupFriendly: true,
     reviews: [
       { author: '大壮', text: '百香果莫吉托非常好喝！团队聚餐氛围超棒，刺身拼盘新鲜度也很高。', rating: 4 },
       { author: 'Jake W.', text: 'Great cocktails and fusion dishes. The mango chicken salad is refreshing and the vibe is very trendy.', rating: 4 },
@@ -138,6 +143,7 @@ export const restaurants: Restaurant[] = [
     tips: ['黑胡椒炒蟹是镇店之宝，必点', '价格是同类餐厅中最实惠的', '不接受预约，先到先得'],
     tags: ['越南家常菜', '胡椒蟹', '实惠', '本地口味'],
     mustTry: true,
+    groupFriendly: false,
     reviews: [
       { author: '阿峰', text: '黑胡椒炒蟹是我吃过最好的！用的是富国岛本地胡椒，香气浓郁，价格比市区便宜一半。', rating: 5 },
       { author: 'Hana N.', text: 'The pepper crab here is legendary among locals. No reservations accepted so arrive early!', rating: 5 },
@@ -162,6 +168,7 @@ export const restaurants: Restaurant[] = [
     tips: ['Google Maps 评分 4.8，超过2300条好评', '提前2天预约，座位稀少', '推荐提前预定5道式套餐体验'],
     tags: ['法越融合', '精品料理', '必去', '高分餐厅'],
     mustTry: true,
+    groupFriendly: true,
     reviews: [
       { author: '婷婷', text: '法越融合做到了极致！鹅肝配香茅酱是难以置信的组合，每一道菜都像艺术品。', rating: 5 },
       { author: 'Antoine B.', text: 'A French chef bringing the best of both worlds. The 5-course tasting menu is worth every penny. Book 2 days ahead!', rating: 5 },
@@ -186,6 +193,7 @@ export const restaurants: Restaurant[] = [
     tips: ['下午3–5点来喝啤酒看海最惬意', '全鱼烤制需要等待约30分钟', '推荐傍晚日落时分到达'],
     tags: ['海滩餐吧', '烤鱼', '休闲', '度假氛围'],
     mustTry: false,
+    groupFriendly: true,
     reviews: [
       { author: 'Tom H.', text: 'Hammocks, cold beer and grilled fish on the beach — the ultimate Phu Quoc afternoon. Very chill vibe.', rating: 4 },
       { author: '小新', text: '下午3点来喝啤酒、躺吊床，这就是度假的感觉。香蕉叶烤鱼香气四溢。', rating: 4 },
@@ -210,6 +218,7 @@ export const restaurants: Restaurant[] = [
     tips: ['素食和清真饮食友好', '黄油鸡肉咖喱是招牌，每桌必点', '辣度可按需调整'],
     tags: ['印度菜', '素食友好', '正宗咖喱', '清真'],
     mustTry: false,
+    groupFriendly: true,
     reviews: [
       { author: '晨晨', text: '来富国岛吃印度菜？听起来奇怪，但真的超好吃！黄油鸡咖喱比国内任何一家都地道。', rating: 5 },
       { author: 'Priya S.', text: 'Best butter chicken outside of India! Ingredients are imported from India and you can taste the difference.', rating: 5 },
@@ -234,6 +243,7 @@ export const restaurants: Restaurant[] = [
     tips: ['17:30–18:30 到达抢最好位置', '扇贝和花蛤按斤计价，记得确认价格再下单', '可以和摊主砍价，多买有优惠'],
     tags: ['夜市', '海鲜', '街头美食', '实惠', '本地体验'],
     mustTry: true,
+    groupFriendly: true,
     reviews: [
       { author: '志远', text: '扇贝配蒜蓉黄油，一口一个，根本停不下来！这里的价格是餐厅的一半，本地人也爱来。', rating: 5 },
       { author: 'Karen L.', text: 'The grilled scallops are addictive! Arrive early to get the best spot. Super local experience.', rating: 4 },
@@ -258,6 +268,7 @@ export const restaurants: Restaurant[] = [
     tips: ['非住店客人也可用餐，建议提前电话预约', '午餐比晚餐性价比更高', '花园座位需额外预约'],
     tags: ['有机料理', '生态餐厅', '越南菜', '健康饮食'],
     mustTry: false,
+    groupFriendly: false,
     reviews: [
       { author: '安琪', text: '有机沙拉用的都是自家菜园的蔬菜，清新健康。花园座位环境太美了，午餐强烈推荐。', rating: 5 },
       { author: 'Sophie D.', text: 'Hidden gem! The resort garden setting is stunning and the Canh Chua fish soup is the best I\'ve tried.', rating: 5 },

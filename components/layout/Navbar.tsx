@@ -13,6 +13,7 @@ const navLinks = [
   { href: '/', label: '首页' },
   { href: '/destination', label: '地域介绍' },
   { href: '/itinerary', label: '行程攻略' },
+  { href: '/booking', label: '预订状态' },
   { href: '/practical', label: '出发前关注' },
   { href: '/memories', label: '旅行回忆' },
 ]

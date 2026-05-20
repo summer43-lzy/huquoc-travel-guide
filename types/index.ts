@@ -19,6 +19,8 @@ export interface DayItinerary {
   date: string
   title: string
   description: string
+  bullets?: string[]
+  essentials?: string[]
   attractions: Attraction[]
 }
 
