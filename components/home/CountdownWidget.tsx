@@ -201,27 +201,27 @@ export default function CountdownWidget() {
         {/* 3 core entry cards */}
         <div className="px-5 py-4 grid grid-cols-3 gap-3">
           <Link
-            href="/practical"
-            className="bg-white/15 hover:bg-white/25 rounded-xl p-3 text-center transition-colors"
+            href="/practical#visa"
+            className="bg-white/15 hover:bg-white/25 rounded-xl px-3 py-2.5 text-center transition-colors"
           >
-            <p className="text-2xl mb-1">🛂</p>
-            <p className="font-semibold text-sm">签证信息</p>
+            <p className="text-base mb-1">🛂</p>
+            <p className="font-semibold text-xs">签证信息</p>
             <p className="text-ocean-200 text-[10px] mt-0.5">越南免签政策</p>
           </Link>
           <Link
-            href="/practical"
-            className="bg-white/15 hover:bg-white/25 rounded-xl p-3 text-center transition-colors"
+            href="/practical#packing"
+            className="bg-white/15 hover:bg-white/25 rounded-xl px-3 py-2.5 text-center transition-colors"
           >
-            <p className="text-2xl mb-1">🧳</p>
-            <p className="font-semibold text-sm">打包清单</p>
+            <p className="text-base mb-1">🧳</p>
+            <p className="font-semibold text-xs">打包清单</p>
             <p className="text-ocean-200 text-[10px] mt-0.5">行李必备物品</p>
           </Link>
           <Link
             href="/practical"
-            className="bg-white/15 hover:bg-white/25 rounded-xl p-3 text-center transition-colors"
+            className="bg-white/15 hover:bg-white/25 rounded-xl px-3 py-2.5 text-center transition-colors"
           >
-            <p className="text-2xl mb-1">✅</p>
-            <p className="font-semibold text-sm">出发检查</p>
+            <p className="text-base mb-1">✅</p>
+            <p className="font-semibold text-xs">出发检查</p>
             <p className="text-ocean-200 text-[10px] mt-0.5">出发前行动清单</p>
           </Link>
         </div>
