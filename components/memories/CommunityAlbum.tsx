@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import {
   getPublicPhotos, getPhotoLikeCounts, getUserLikedPhotos, togglePhotoLike, type Photo,
 } from '@/lib/supabase/db'
+import PhotoLightbox from '@/components/ui/PhotoLightbox'
 
 const DAY_LABELS: Record<number, string> = {
   1: 'Day 1 · 6月5日',
@@ -19,15 +20,18 @@ function PhotoCard({
   likeCount,
   liked,
   onToggleLike,
+  onClick,
 }: {
   photo: Photo
   likeCount: number
   liked: boolean
   onToggleLike: (id: string) => void
+  onClick: () => void
 }) {
   const [imgError, setImgError] = useState(false)
 
-  function handleDownload() {
+  function handleDownload(e: React.MouseEvent) {
+    e.stopPropagation()
     const a = document.createElement('a')
     a.href = photo.url
     a.download = `phuquoc-${photo.id}.jpg`
@@ -40,7 +44,11 @@ function PhotoCard({
 
   return (
     <div className="relative group rounded-2xl overflow-hidden bg-white border border-stone-100 shadow-sm">
-      <div className="aspect-square bg-stone-100 overflow-hidden">
+      <button
+        className="w-full aspect-square bg-stone-100 overflow-hidden block"
+        onClick={onClick}
+        aria-label="查看大图"
+      >
         {!imgError ? (
           <img
             src={photo.url}
@@ -56,7 +64,7 @@ function PhotoCard({
         )}
 
         {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 pointer-events-none" />
 
         {/* Download button */}
         <button
@@ -66,7 +74,7 @@ function PhotoCard({
         >
           <Download className="w-3.5 h-3.5" />
         </button>
-      </div>
+      </button>
 
       <div className="p-3">
         {photo.day && (
@@ -98,6 +106,7 @@ export default function CommunityAlbum() {
   const [userId, setUserId] = useState<string | null>(null)
   const [filterDay, setFilterDay] = useState<number | 'all'>('all')
   const [loading, setLoading] = useState(true)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -193,16 +202,30 @@ export default function CommunityAlbum() {
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-        {filtered.map(photo => (
+        {filtered.map((photo, i) => (
           <PhotoCard
             key={photo.id}
             photo={photo}
             likeCount={likeCounts[photo.id] ?? 0}
             liked={likedSet.has(photo.id)}
             onToggleLike={handleToggleLike}
+            onClick={() => setLightboxIndex(i)}
           />
         ))}
       </div>
+
+      {lightboxIndex !== null && (
+        <PhotoLightbox
+          photos={filtered.map(p => ({
+            url: p.url,
+            caption: p.caption ?? undefined,
+            dayLabel: p.day ? (DAY_LABELS[p.day] ?? `Day ${p.day}`) : undefined,
+          }))}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNav={setLightboxIndex}
+        />
+      )}
     </div>
   )
 }

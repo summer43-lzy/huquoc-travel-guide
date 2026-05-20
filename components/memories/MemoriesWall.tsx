@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Trash2, Plus, X, Image as ImageIcon, Upload, Loader2, Globe, Lock } from 'lucide-react'
+import { Trash2, Plus, X, Image as ImageIcon, Upload, Loader2, Globe, Lock, LogIn } from 'lucide-react'
 import { getMemories, addMemory, removeMemory, type Memory } from '@/lib/localStorage'
 import { createClient } from '@/lib/supabase/client'
 import { addPublicPhoto } from '@/lib/supabase/db'
+import PhotoLightbox, { type LightboxPhoto } from '@/components/ui/PhotoLightbox'
 
 const DAY_OPTIONS = [
   { value: 1, label: 'Day 1 · 6月5日' },
@@ -21,7 +22,12 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [loggedIn, setLoggedIn] = useState<boolean | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => setLoggedIn(!!data.user))
+  }, [])
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -141,29 +147,40 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
           {/* Visibility */}
           <div>
             <label className="text-xs font-semibold text-stone-500 mb-1.5 block">共享设置</label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setIsPublic(false)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border text-xs font-medium transition-colors ${
-                  !isPublic ? 'bg-stone-900 border-stone-900 text-white' : 'border-stone-200 text-stone-600 hover:border-stone-300'
-                }`}
-              >
-                <Lock className="w-3.5 h-3.5" />
-                仅自己可见
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsPublic(true)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border text-xs font-medium transition-colors ${
-                  isPublic ? 'bg-ocean-600 border-ocean-600 text-white' : 'border-stone-200 text-stone-600 hover:border-ocean-300'
-                }`}
-              >
-                <Globe className="w-3.5 h-3.5" />
-                分享到公共相册
-              </button>
-            </div>
-            {isPublic && <p className="text-xs text-ocean-600 mt-1">照片将显示在旅行回忆页面的公共相册中</p>}
+            {loggedIn === false ? (
+              <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
+                <LogIn className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                <p className="text-xs text-amber-700">
+                  <a href="/profile" className="font-semibold underline">登录</a>后可将照片分享到公共相册，让大家一起看到
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsPublic(false)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border text-xs font-medium transition-colors ${
+                      !isPublic ? 'bg-stone-900 border-stone-900 text-white' : 'border-stone-200 text-stone-600 hover:border-stone-300'
+                    }`}
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    仅自己可见
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsPublic(true)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border text-xs font-medium transition-colors ${
+                      isPublic ? 'bg-ocean-600 border-ocean-600 text-white' : 'border-stone-200 text-stone-600 hover:border-ocean-300'
+                    }`}
+                  >
+                    <Globe className="w-3.5 h-3.5" />
+                    分享到公共相册
+                  </button>
+                </div>
+                {isPublic && <p className="text-xs text-ocean-600 mt-1">照片将显示在旅行回忆页面的公共相册中</p>}
+              </>
+            )}
           </div>
 
           <button
@@ -179,13 +196,25 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
   )
 }
 
-function MemoryCard({ memory, onDelete }: { memory: Memory; onDelete: (id: string) => void }) {
+function MemoryCard({
+  memory,
+  onDelete,
+  onClick,
+}: {
+  memory: Memory
+  onDelete: (id: string) => void
+  onClick: () => void
+}) {
   const [imgError, setImgError] = useState(false)
   const dayLabel = DAY_OPTIONS.find(d => d.value === memory.day)?.label ?? `Day ${memory.day}`
 
   return (
     <div className="relative group rounded-2xl overflow-hidden bg-white border border-stone-100 shadow-sm">
-      <div className="aspect-square bg-stone-100 overflow-hidden">
+      <button
+        className="w-full aspect-square bg-stone-100 overflow-hidden block text-left"
+        onClick={onClick}
+        aria-label="查看大图"
+      >
         {!imgError ? (
           <img
             src={memory.url}
@@ -199,7 +228,7 @@ function MemoryCard({ memory, onDelete }: { memory: Memory; onDelete: (id: strin
             <p className="text-xs">图片无法加载</p>
           </div>
         )}
-      </div>
+      </button>
       <div className="p-3">
         <span className="inline-block bg-ocean-50 text-ocean-700 rounded-full px-2 py-0.5 text-[10px] font-medium mb-1">
           {dayLabel}
@@ -223,6 +252,7 @@ export default function MemoriesWall() {
   const [memories, setMemories] = useState<Memory[]>([])
   const [showModal, setShowModal] = useState(false)
   const [filterDay, setFilterDay] = useState<number | 'all'>('all')
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
   useEffect(() => {
     setMemories(getMemories())
@@ -238,6 +268,12 @@ export default function MemoriesWall() {
   }
 
   const filtered = filterDay === 'all' ? memories : memories.filter(m => m.day === filterDay)
+
+  const lightboxPhotos = filtered.map(m => ({
+    url: m.url,
+    caption: m.caption,
+    dayLabel: DAY_OPTIONS.find(d => d.value === m.day)?.label,
+  }))
 
   return (
     <div>
@@ -293,8 +329,8 @@ export default function MemoriesWall() {
       {/* Grid */}
       {filtered.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-          {filtered.map(m => (
-            <MemoryCard key={m.id} memory={m} onDelete={handleDelete} />
+          {filtered.map((m, i) => (
+            <MemoryCard key={m.id} memory={m} onDelete={handleDelete} onClick={() => setLightboxIndex(i)} />
           ))}
         </div>
       ) : (
@@ -322,6 +358,15 @@ export default function MemoriesWall() {
         <AddMemoryModal
           onClose={() => setShowModal(false)}
           onAdd={handleAdded}
+        />
+      )}
+
+      {lightboxIndex !== null && (
+        <PhotoLightbox
+          photos={lightboxPhotos}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNav={setLightboxIndex}
         />
       )}
     </div>
