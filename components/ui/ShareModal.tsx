@@ -10,6 +10,7 @@ const PAGES = [
   { href: `${BASE}/`,           label: '🏠 首页',       desc: '旅行总览' },
   { href: `${BASE}/itinerary`,  label: '📅 行程攻略',   desc: '景点·活动·每日安排' },
   { href: `${BASE}/booking`,    label: '✅ 预订状态',   desc: '实时追踪预订进度' },
+  { href: `${BASE}/expense`,    label: '💰 团队记账',   desc: '消费流水·实时汇率' },
   { href: `${BASE}/practical`,  label: '🧳 出发前关注', desc: '签证·货币·实用信息' },
   { href: `${BASE}/destination`,label: '🏝️ 目的地介绍', desc: '富国岛全攻略' },
 ]
@@ -74,11 +75,11 @@ export default function ShareModal({ onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden"
+        className="w-full max-w-sm bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh]"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100 flex-shrink-0">
           <div className="flex items-center gap-2">
             <Share2 className="w-4 h-4 text-ocean-600" />
             <h3 className="font-display font-bold text-stone-900">分享给朋友</h3>
@@ -88,7 +89,7 @@ export default function ShareModal({ onClose }: Props) {
           </button>
         </div>
 
-        <div className="p-5 space-y-4">
+        <div className="p-5 space-y-4 overflow-y-auto">
           {/* QR code */}
           <div className="flex flex-col items-center">
             {qrDataUrl ? (

@@ -16,6 +16,7 @@ const navLinks = [
   { href: '/destination', label: '地域介绍' },
   { href: '/practical', label: '出发前关注' },
   { href: '/memories', label: '旅行回忆' },
+  { href: '/expense', label: '记账' },
 ]
 
 export default function Navbar() {
