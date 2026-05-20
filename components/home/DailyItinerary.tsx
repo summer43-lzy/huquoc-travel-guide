@@ -43,17 +43,17 @@ export default function DailyItinerary({ trip }: { trip: TripOverview }) {
             >
               {/* Accordion header */}
               <button
-                className="w-full flex items-center justify-between p-5 sm:p-6 text-left"
+                className="w-full flex items-center justify-between px-4 py-3 sm:px-5 sm:py-3.5 text-left"
                 onClick={() => setExpanded(isOpen ? null : day.day)}
               >
-                <div className="flex items-center gap-4">
-                  <div className={cn('w-12 h-12 rounded-xl border-2 flex flex-col items-center justify-center flex-shrink-0', accent)}>
-                    <span className="text-xs font-bold leading-none">Day</span>
-                    <span className="text-lg font-bold leading-none">{day.day}</span>
+                <div className="flex items-center gap-3">
+                  <div className={cn('w-9 h-9 rounded-lg border-2 flex flex-col items-center justify-center flex-shrink-0', accent)}>
+                    <span className="text-[9px] font-bold leading-none">Day</span>
+                    <span className="text-sm font-bold leading-none">{day.day}</span>
                   </div>
                   <div>
-                    <h3 className="font-display font-bold text-lg text-stone-900">{day.title}</h3>
-                    <p className="text-sm text-stone-400 mt-0.5">{day.date} · {day.attractions.length} 个地点</p>
+                    <h3 className="font-display font-bold text-base text-stone-900">{day.title}</h3>
+                    <p className="text-xs text-stone-400 mt-0.5">{day.date} · {day.attractions.length} 个地点</p>
                   </div>
                 </div>
                 <ChevronDown

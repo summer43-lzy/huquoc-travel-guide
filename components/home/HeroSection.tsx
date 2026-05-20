@@ -2,13 +2,6 @@ import Link from 'next/link'
 import { TripOverview } from '@/types'
 import ShareButton from '@/components/ui/ShareButton'
 
-const dayColors = ['bg-ocean-500', 'bg-violet-500', 'bg-emerald-500', 'bg-amber-500']
-
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr)
-  return `${d.getMonth() + 1}月${d.getDate()}日`
-}
-
 export default function HeroSection({ trip }: { trip: TripOverview }) {
   return (
     <section className="relative overflow-hidden">
@@ -46,32 +39,11 @@ export default function HeroSection({ trip }: { trip: TripOverview }) {
           </p>
         </div>
 
-        {/* Desktop: trip summary line */}
-        <div className="hidden sm:flex justify-center mb-5">
+        {/* Trip summary line */}
+        <div className="flex justify-center mb-6">
           <p className="text-white/85 text-sm font-medium bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-2">
             2026年6月5–8日 · 4天3晚 · 10人团 · 拉菲斯塔希尔顿
           </p>
-        </div>
-
-        {/* Desktop: day-by-day strip */}
-        <div className="hidden sm:grid grid-cols-4 gap-2 mb-5 max-w-2xl mx-auto">
-          {trip.days.map((day, i) => (
-            <Link
-              key={day.day}
-              href={`/itinerary#day-${day.day}`}
-              className="group bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 rounded-xl px-2.5 py-2 text-white transition-all"
-            >
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <div className={`w-5 h-5 rounded-full ${dayColors[i]} flex items-center justify-center flex-shrink-0`}>
-                  <span className="text-[9px] font-bold">{day.day}</span>
-                </div>
-                <span className="text-[10px] text-white/60">{formatDate(day.date)}</span>
-              </div>
-              <p className="text-xs font-semibold leading-tight line-clamp-2">
-                {day.title.split('·').map(s => s.trim()).slice(0, 2).join(' · ')}
-              </p>
-            </Link>
-          ))}
         </div>
 
         {/* CTAs */}
