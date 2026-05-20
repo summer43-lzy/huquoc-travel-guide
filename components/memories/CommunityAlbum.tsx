@@ -78,7 +78,7 @@ function PhotoCard({
 
       <div className="p-3">
         {photo.day && (
-          <span className="inline-block bg-ocean-50 text-ocean-700 rounded-full px-2 py-0.5 text-[10px] font-medium mb-1">
+          <span className="inline-block bg-ocean-50 text-ocean-700 rounded-full px-2 py-0.5 text-xs font-medium mb-1">
             {DAY_LABELS[photo.day] ?? `Day ${photo.day}`}
           </span>
         )}

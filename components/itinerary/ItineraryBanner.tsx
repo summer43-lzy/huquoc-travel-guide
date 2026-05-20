@@ -111,7 +111,7 @@ export default function ItineraryBanner() {
                 }`}
               >
                 {item.isDay && (
-                  <span className={`w-5 h-5 rounded-full ${item.color} flex items-center justify-center text-[10px] font-bold mb-0.5`}>
+                  <span className={`w-5 h-5 rounded-full ${item.color} flex items-center justify-center text-xs font-bold mb-0.5`}>
                     {item.id.replace('day-', '')}
                   </span>
                 )}
@@ -119,7 +119,7 @@ export default function ItineraryBanner() {
                 <span className={`text-xs font-semibold leading-none ${isActive ? 'text-white' : 'text-white/90'}`}>
                   {item.label}
                 </span>
-                <span className="text-[10px] text-white/60 mt-0.5">{item.sub}</span>
+                <span className="text-xs text-white/60 mt-0.5">{item.sub}</span>
               </button>
             )
           })}

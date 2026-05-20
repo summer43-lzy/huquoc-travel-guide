@@ -88,12 +88,12 @@ export default function TripWeatherForecast() {
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-stone-700">🌤️ 富国岛天气预报</span>
           {forecasts.some(f => f.tripLabel) && (
-            <span className="text-[10px] bg-ocean-50 text-ocean-600 border border-ocean-100 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs bg-ocean-50 text-ocean-600 border border-ocean-100 px-2 py-0.5 rounded-full font-medium">
               含行程日期
             </span>
           )}
         </div>
-        <span className="text-[10px] text-stone-400">
+        <span className="text-xs text-stone-400">
           {fetchedAt ? `实时数据 · 更新于 ${fetchedAt}（越南时间）` : 'wttr.in 实时数据'}
         </span>
       </div>
@@ -124,19 +124,19 @@ export default function TripWeatherForecast() {
               {/* Label row */}
               <div className="mb-1.5">
                 {fc.tripLabel ? (
-                  <p className={`text-[10px] font-semibold uppercase tracking-wider ${
+                  <p className={`text-xs font-semibold uppercase tracking-wider ${
                     fc.isToday ? 'text-ocean-200' : 'text-ocean-600'
                   }`}>
                     {fc.tripLabel}
                   </p>
                 ) : (
-                  <p className={`text-[10px] font-medium ${fc.isToday ? 'text-ocean-200' : 'text-stone-400'}`}>
+                  <p className={`text-xs font-medium ${fc.isToday ? 'text-ocean-200' : 'text-stone-400'}`}>
                     {fc.isToday ? '今天' : formatDateLabel(fc.date)}
                   </p>
                 )}
                 {/* Show actual date under trip label */}
                 {fc.tripLabel && (
-                  <p className={`text-[10px] ${fc.isToday ? 'text-ocean-200' : 'text-stone-400'}`}>
+                  <p className={`text-xs ${fc.isToday ? 'text-ocean-200' : 'text-stone-400'}`}>
                     {formatDateLabel(fc.date)}
                   </p>
                 )}
@@ -154,14 +154,14 @@ export default function TripWeatherForecast() {
               </p>
 
               {/* Condition */}
-              <p className={`text-[10px] mt-1 leading-tight ${fc.isToday ? 'text-ocean-100' : 'text-stone-400'}`}>
+              <p className={`text-xs mt-1 leading-tight ${fc.isToday ? 'text-ocean-100' : 'text-stone-400'}`}>
                 {fc.desc || '—'}
               </p>
 
               {/* Today badge */}
               {fc.isToday && (
                 <div className="mt-2 bg-white/20 rounded-full px-2 py-0.5 inline-block">
-                  <span className="text-[10px] text-white font-semibold">今天</span>
+                  <span className="text-xs text-white font-semibold">今天</span>
                 </div>
               )}
             </div>

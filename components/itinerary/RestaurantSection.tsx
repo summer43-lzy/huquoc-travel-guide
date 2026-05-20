@@ -68,8 +68,8 @@ function TonightRecommendation() {
             <div>
               <p className="text-xs font-semibold text-stone-800 leading-tight">{r.name}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-amber-500 text-[10px]">★ {r.googleRating}</span>
-                <span className="text-stone-400 text-[10px]">{priceLabel[r.priceRange]}</span>
+                <span className="text-amber-500 text-xs">★ {r.googleRating}</span>
+                <span className="text-stone-400 text-xs">{priceLabel[r.priceRange]}</span>
                 <OpenStatus openHours={r.openHours} />
               </div>
             </div>
@@ -219,7 +219,7 @@ export default function RestaurantSection() {
                   style={{ minHeight: '120px' }}
                 />
                 {r.mustTry && (
-                  <div className="absolute top-2 left-2 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  <div className="absolute top-2 left-2 bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                     必去
                   </div>
                 )}
@@ -282,14 +282,14 @@ export default function RestaurantSection() {
             {/* Inline reviews (always visible) */}
             {r.reviews && r.reviews.length > 0 && (
               <div className="border-t border-stone-50 px-4 pb-3 pt-3 bg-stone-50/40">
-                <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2">热门评价</p>
+                <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">热门评价</p>
                 <div className="space-y-2">
                   {r.reviews.slice(0, 2).map((rv, i) => (
                     <div key={i} className="flex items-start gap-2">
                       <Quote className="w-3 h-3 text-ocean-300 flex-shrink-0 mt-0.5" />
                       <div className="min-w-0">
                         <p className="text-xs text-stone-600 leading-relaxed line-clamp-2">{rv.text}</p>
-                        <p className="text-[10px] text-stone-400 mt-0.5 flex items-center gap-1">
+                        <p className="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
                           <span className="text-amber-400">{'★'.repeat(rv.rating)}</span>
                           <span>{rv.author}</span>
                         </p>

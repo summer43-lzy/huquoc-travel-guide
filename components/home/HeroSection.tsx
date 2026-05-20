@@ -13,27 +13,24 @@ export default function HeroSection({ trip }: { trip: TripOverview }) {
       <div className="absolute inset-0 bg-gradient-to-b from-ocean-900/55 via-ocean-900/40 to-ocean-900/80" />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-6 sm:pb-12">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 pb-4 sm:pb-8">
         {/* Badge */}
-        <div className="flex justify-center mb-3 sm:mb-4">
-          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-4 py-1.5 text-sm text-white">
-            <span className="text-sand-300 text-xs">📍</span>
-            <span className="text-sm">越南 · 富国岛</span>
+        <div className="flex justify-center mb-2 sm:mb-3">
+          <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-3 py-1 text-white">
+            <span className="text-xs">📍</span>
+            <span className="text-xs">越南 · 富国岛</span>
           </div>
         </div>
 
         {/* Title */}
-        <div className="text-center mb-2 sm:mb-3">
-          <h1 className="font-display text-3xl sm:text-6xl font-bold text-white leading-tight drop-shadow-lg">
+        <div className="text-center mb-2">
+          <h1 className="font-display text-3xl sm:text-5xl font-bold text-white leading-tight drop-shadow-lg">
             富国岛<span className="text-sand-300"> 旅行指南</span>
           </h1>
-          <p className="text-white/60 text-xs sm:text-sm mt-1.5 tracking-widest font-light">
-            Your Ultimate Guide to Phu Quoc, Vietnam
-          </p>
         </div>
 
         {/* Trip summary — single line, no box */}
-        <p className="text-center text-white/75 text-sm mb-6 sm:mb-8">
+        <p className="text-center text-white/75 text-sm mb-4 sm:mb-6">
           6月5–8日 · 4天3晚 · {trip.groupSize}人 · 拉菲斯塔希尔顿
         </p>
 

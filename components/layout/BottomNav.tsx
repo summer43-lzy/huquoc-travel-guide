@@ -31,7 +31,7 @@ export default function BottomNav() {
               )}
             >
               <Icon className={cn('w-5 h-5', active && 'stroke-[2.5]')} />
-              <span className={cn('text-[10px] leading-tight font-medium', active && 'font-semibold')}>
+              <span className={cn('text-xs leading-tight font-medium', active && 'font-semibold')}>
                 {label}
               </span>
               {active && (

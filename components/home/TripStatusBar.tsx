@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ChevronRight, ClipboardCheck, Coins } from 'lucide-react'
+import { ChevronRight, ClipboardCheck, CircleDollarSign } from 'lucide-react'
 
 const bookingItems = [
   { id: 'hotel-lafesta',  status: 'confirmed' },
@@ -67,7 +67,7 @@ export default function TripStatusBar() {
           <div>
             <div className="flex items-baseline gap-1 mb-1.5">
               <span className="font-display font-bold text-xl text-stone-900">{pct}%</span>
-              <span className="text-[10px] text-stone-400">{display}/{TOTAL} 已确认</span>
+              <span className="text-xs text-stone-400">{display}/{TOTAL} 已确认</span>
             </div>
             <div className="w-full bg-stone-100 rounded-full h-1.5">
               <div
@@ -86,7 +86,7 @@ export default function TripStatusBar() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-ocean-50 flex items-center justify-center flex-shrink-0">
-                <Coins className="w-3.5 h-3.5 text-ocean-600" />
+                <CircleDollarSign className="w-3.5 h-3.5 text-ocean-600" />
               </div>
               <span className="text-xs font-semibold text-stone-600">团队记账</span>
             </div>
@@ -94,7 +94,7 @@ export default function TripStatusBar() {
           </div>
           <div>
             <p className="font-display font-bold text-xl text-stone-900">记账</p>
-            <p className="text-[10px] text-stone-400 mt-0.5">记录每一笔花费</p>
+            <p className="text-xs text-stone-400 mt-0.5">记录每一笔花费</p>
           </div>
         </Link>
       </div>

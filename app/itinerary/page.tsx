@@ -65,7 +65,7 @@ export default function ItineraryPage() {
                 {/* Essentials strip */}
                 {day.essentials && day.essentials.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-3">
-                    <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider self-center mr-1">必带</span>
+                    <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider self-center mr-1">必带</span>
                     {day.essentials.map((e, i) => (
                       <span key={i} className="bg-amber-50 border border-amber-100 text-amber-700 rounded-full px-2.5 py-0.5 text-xs">{e}</span>
                     ))}
@@ -83,7 +83,7 @@ export default function ItineraryPage() {
                   className="bg-white rounded-2xl overflow-hidden border border-stone-100 card-hover shadow-sm flex flex-col"
                 >
                   {/* Image */}
-                  <div className="relative h-52 overflow-hidden flex-shrink-0">
+                  <div className="relative h-40 sm:h-52 overflow-hidden flex-shrink-0">
                     <img
                       src={attraction.image}
                       alt={attraction.name}

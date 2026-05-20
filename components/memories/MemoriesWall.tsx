@@ -71,7 +71,7 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 pb-4 sm:pb-0">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 pb-[72px] sm:pb-0">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
           <h3 className="font-display font-bold text-stone-900">添加照片回忆</h3>
@@ -231,7 +231,7 @@ function MemoryCard({
         )}
       </button>
       <div className="p-3">
-        <span className="inline-block bg-ocean-50 text-ocean-700 rounded-full px-2 py-0.5 text-[10px] font-medium mb-1">
+        <span className="inline-block bg-ocean-50 text-ocean-700 rounded-full px-2 py-0.5 text-xs font-medium mb-1">
           {dayLabel}
         </span>
         {memory.caption && (

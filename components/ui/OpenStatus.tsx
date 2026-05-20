@@ -33,7 +33,7 @@ export default function OpenStatus({ openHours }: { openHours: string }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${
+      className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
         status.open
           ? 'bg-emerald-50 text-emerald-700'
           : 'bg-stone-100 text-stone-500'

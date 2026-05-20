@@ -210,8 +210,8 @@ export default function PracticalPage() {
         </div>
       </div>
 
-      {/* Quick nav — hidden on mobile first screen, visible on sm+ */}
-      <div className="hidden sm:block sticky top-16 z-30 bg-white/95 backdrop-blur-sm border-b border-stone-100 shadow-sm">
+      {/* Quick nav — sticky below header on all screens */}
+      <div className="block sticky top-16 z-30 bg-white/95 backdrop-blur-sm border-b border-stone-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex gap-1 overflow-x-auto py-3 scrollbar-hide">
             {allSections.map(s => (

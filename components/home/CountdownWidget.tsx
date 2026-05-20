@@ -102,7 +102,7 @@ export default function CountdownWidget() {
                 <span className="text-2xl">{weather.icon}</span>
                 <div>
                   <p className="font-bold text-lg leading-none">{weather.temp}°C</p>
-                  <p className="text-ocean-200 text-[10px] mt-0.5">富国岛实时</p>
+                  <p className="text-ocean-200 text-xs mt-0.5">富国岛实时</p>
                 </div>
               </div>
             )}
@@ -112,7 +112,7 @@ export default function CountdownWidget() {
             {/* Today's bullets */}
             {day?.bullets && (
               <div>
-                <p className="text-ocean-200 text-[10px] font-semibold uppercase tracking-wider mb-2">今日行程</p>
+                <p className="text-ocean-200 text-xs font-semibold uppercase tracking-wider mb-2">今日行程</p>
                 <ul className="space-y-1.5">
                   {day.bullets.map((b, i) => (
                     <li key={i} className="text-sm text-white/90 leading-snug">
@@ -127,7 +127,7 @@ export default function CountdownWidget() {
               {/* Essentials */}
               {day?.essentials && (
                 <div>
-                  <p className="text-ocean-200 text-[10px] font-semibold uppercase tracking-wider mb-2">今日必带</p>
+                  <p className="text-ocean-200 text-xs font-semibold uppercase tracking-wider mb-2">今日必带</p>
                   <div className="flex flex-wrap gap-1.5">
                     {day.essentials.map((e, i) => (
                       <span key={i} className="bg-white/15 rounded-full px-2.5 py-1 text-xs text-white/90">{e}</span>
@@ -187,7 +187,7 @@ export default function CountdownWidget() {
               <span className="text-2xl">{weather.icon}</span>
               <div>
                 <p className="font-bold text-lg leading-none">{weather.temp}°C</p>
-                <p className="text-ocean-200 text-[10px] mt-0.5">富国岛实时</p>
+                <p className="text-ocean-200 text-xs mt-0.5">富国岛实时</p>
               </div>
             </div>
           ) : (
@@ -201,20 +201,20 @@ export default function CountdownWidget() {
         {/* 4 core entry cards — icon left, text right, 4-col both mobile + desktop */}
         <div className="px-4 py-3 grid grid-cols-4 gap-2">
           {[
-            { href: '/practical#visa',     emoji: '🛂', label: '签证',   sub: '免签政策' },
-            { href: '/practical#packing',  emoji: '🧳', label: '打包',   sub: '行李清单' },
-            { href: '/practical',          emoji: '✅', label: '出发前', sub: '行动清单' },
-            { href: '/practical#currency', emoji: '💱', label: '换算',   sub: '越南盾' },
+            { href: '/practical#visa',     emoji: '🛂', label: '签证信息', sub: '免签政策' },
+            { href: '/practical#packing',  emoji: '🧳', label: '打包清单', sub: '行李清单' },
+            { href: '/practical',          emoji: '✅', label: '出发检查', sub: '行动清单' },
+            { href: '/practical#currency', emoji: '💱', label: '货币换算', sub: '越南盾' },
           ].map(item => (
             <Link
               key={item.href}
               href={item.href}
-              className="bg-white/15 hover:bg-white/25 rounded-xl px-2 py-2.5 flex items-center gap-2 transition-colors min-w-0"
+              className="bg-white/15 hover:bg-white/25 rounded-xl px-2 py-2 flex items-center gap-1.5 transition-colors min-w-0"
             >
-              <span className="text-base flex-shrink-0">{item.emoji}</span>
+              <span className="text-sm flex-shrink-0">{item.emoji}</span>
               <div className="min-w-0">
-                <p className="font-semibold text-xs leading-tight truncate">{item.label}</p>
-                <p className="text-ocean-200 text-[10px] leading-tight truncate">{item.sub}</p>
+                <p className="font-semibold text-xs leading-tight">{item.label}</p>
+                <p className="text-ocean-200 text-xs leading-tight opacity-80">{item.sub}</p>
               </div>
             </Link>
           ))}

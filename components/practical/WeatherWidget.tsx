@@ -126,7 +126,7 @@ export default function WeatherWidget() {
             >
               <p className="text-xs font-semibold text-stone-600">{m.month}</p>
               <p className="text-xs text-stone-500">{m.temp}</p>
-              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${rainColor[m.rain]}`}>
+              <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${rainColor[m.rain]}`}>
                 {m.rain}雨
               </span>
             </div>

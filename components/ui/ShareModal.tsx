@@ -144,7 +144,7 @@ function ModalContent({ onClose }: Props) {
 
           {/* Page picker */}
           <div>
-            <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-2">
+            <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
               分享特定页面
             </p>
             <div className="space-y-1.5">
@@ -162,7 +162,7 @@ function ModalContent({ onClose }: Props) {
                     <p className={`text-xs font-semibold ${activeUrl === page.href ? 'text-ocean-700' : 'text-stone-700'}`}>
                       {page.label}
                     </p>
-                    <p className="text-[10px] text-stone-400">{page.desc}</p>
+                    <p className="text-xs text-stone-400">{page.desc}</p>
                   </div>
                   {activeUrl === page.href && (
                     <div className="w-1.5 h-1.5 rounded-full bg-ocean-500 flex-shrink-0" />

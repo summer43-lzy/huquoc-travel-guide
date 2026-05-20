@@ -152,15 +152,15 @@ function ExpenseForm({
   const selectedDayLabel = DAY_OPTIONS.find(d => d.value === day)?.label ?? '不指定'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 pb-4 sm:pb-0">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 pb-[72px] sm:pb-0">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl flex flex-col max-h-[calc(100dvh-80px)] sm:max-h-[90vh]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100 flex-shrink-0">
           <h3 className="font-display font-bold text-stone-900">{existing ? '编辑账单' : '新增消费'}</h3>
           <button onClick={onCancel} className="p-1.5 rounded-full hover:bg-stone-100 transition-colors">
             <X className="w-4 h-4 text-stone-500" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 space-y-3 overflow-y-auto flex-1">
           {/* Amount + Currency */}
           <div>
             <label className="text-xs font-semibold text-stone-500 mb-1.5 block">金额 *</label>
@@ -172,7 +172,7 @@ function ExpenseForm({
                 placeholder="0"
                 min="0"
                 step="any"
-                className="flex-1 border border-stone-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-ocean-400"
+                className="flex-1 border border-stone-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-ocean-400"
                 autoFocus
               />
               <div className="flex rounded-xl border border-stone-200 overflow-hidden text-sm">
@@ -201,7 +201,7 @@ function ExpenseForm({
               onChange={e => setPurpose(e.target.value)}
               placeholder="如：晚餐、缆车票、打车费…"
               maxLength={60}
-              className="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-ocean-400"
+              className="w-full border border-stone-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-ocean-400"
             />
           </div>
 
@@ -401,7 +401,7 @@ export default function ExpensePage() {
                   {rateLoading ? (
                     <p className="text-ocean-300 text-xs">汇率加载中…</p>
                   ) : (
-                    <div className="text-ocean-200 text-[10px] space-y-0.5">
+                    <div className="text-ocean-200 text-xs space-y-0.5">
                       <p>1 CNY = {rates.VND.toFixed(0)} VND</p>
                       <p>1 SGD = {(1 / rates.SGD).toFixed(2)} CNY</p>
                       <p className="text-ocean-300">实时汇率</p>
@@ -476,9 +476,9 @@ export default function ExpensePage() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs text-stone-500 font-medium">{e.nickname}</span>
                           {dayLabel && (
-                            <span className="text-[10px] bg-ocean-50 text-ocean-600 px-2 py-0.5 rounded-full">{dayLabel}</span>
+                            <span className="text-xs bg-ocean-50 text-ocean-600 px-2 py-0.5 rounded-full">{dayLabel}</span>
                           )}
-                          <span className="text-[10px] text-stone-300">
+                          <span className="text-xs text-stone-300">
                             {new Date(e.created_at).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>

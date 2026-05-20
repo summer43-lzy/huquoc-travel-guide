@@ -81,7 +81,7 @@ export default function DayOverviewCard({ day }: { day: DayData }) {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 bg-white hover:bg-ocean-50 border border-ocean-100 hover:border-ocean-300 text-ocean-700 rounded-full px-3 py-1 text-xs font-medium transition-colors"
             >
-              <span className="text-stone-400 text-[10px]">{i + 1}</span>
+              <span className="text-stone-400 text-xs">{i + 1}</span>
               {label}
               <MapPin className="w-3 h-3 opacity-60" />
             </a>
@@ -90,7 +90,7 @@ export default function DayOverviewCard({ day }: { day: DayData }) {
               key={a.id}
               className="inline-flex items-center gap-1 bg-white/60 border border-stone-100 text-stone-500 rounded-full px-3 py-1 text-xs"
             >
-              <span className="text-stone-300 text-[10px]">{i + 1}</span>
+              <span className="text-stone-300 text-xs">{i + 1}</span>
               {label}
             </span>
           )

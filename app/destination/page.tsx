@@ -147,7 +147,7 @@ export default function DestinationPage() {
             <p className="text-ocean-600 font-semibold text-sm tracking-widest uppercase mb-3">Island Info</p>
             <h2 className="font-display text-3xl font-bold text-stone-900">全方位了解</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {infoCards.map(card => (
               <div
                 key={card.title}
