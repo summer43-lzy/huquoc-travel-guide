@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { Trash2, Plus, X, Image as ImageIcon, Upload, Loader2, Globe, Lock, LogIn } from 'lucide-react'
 import { getMemories, addMemory, removeMemory, type Memory } from '@/lib/localStorage'
 import { createClient } from '@/lib/supabase/client'
@@ -151,7 +152,7 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
               <div className="flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
                 <LogIn className="w-4 h-4 text-amber-600 flex-shrink-0" />
                 <p className="text-xs text-amber-700">
-                  <a href="/profile" className="font-semibold underline">登录</a>后可将照片分享到公共相册，让大家一起看到
+                  <Link href="/profile" className="font-semibold underline">登录</Link>后可将照片分享到公共相册，让大家一起看到
                 </p>
               </div>
             ) : (

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Heart, CheckCircle } from 'lucide-react'
 import { createPortal } from 'react-dom'
+import Link from 'next/link'
 import { toggleFavorite, isFavorite } from '@/lib/localStorage'
 import { toggleFavoriteDb, isFavoriteDb } from '@/lib/supabase/db'
 import { createClient } from '@/lib/supabase/client'
@@ -21,9 +22,9 @@ function FavoriteToast({ visible }: { visible: boolean }) {
       <div className="flex items-center gap-3 bg-stone-900 text-white px-5 py-3 rounded-2xl shadow-xl text-sm whitespace-nowrap">
         <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
         <span>已收藏！可在</span>
-        <a href="/profile" className="font-semibold text-ocean-300 hover:text-ocean-200 underline underline-offset-2">
+        <Link href="/profile" className="font-semibold text-ocean-300 hover:text-ocean-200 underline underline-offset-2">
           个人中心
-        </a>
+        </Link>
         <span>查看</span>
       </div>
     </div>,

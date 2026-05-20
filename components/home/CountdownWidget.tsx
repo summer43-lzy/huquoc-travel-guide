@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Sun, MapPin, ExternalLink, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
 import { tripData } from '@/data/itinerary'
 
 const TRIP_START = new Date('2026-06-05T00:00:00+08:00')
@@ -137,12 +138,12 @@ export default function CountdownWidget() {
 
               {/* Quick links */}
               <div className="flex flex-wrap gap-2 pt-1">
-                <a
+                <Link
                   href={`/itinerary#day-${tripDay}`}
                   className="inline-flex items-center gap-1.5 bg-white text-ocean-700 rounded-full px-4 py-2 text-sm font-semibold hover:bg-ocean-50 transition-colors"
                 >
                   查看今日行程 <ChevronRight className="w-3.5 h-3.5" />
-                </a>
+                </Link>
                 {mapsUrl && (
                   <a
                     href={mapsUrl}
@@ -165,85 +166,74 @@ export default function CountdownWidget() {
 
   // ── Before trip ──
   const { days, hours } = getDiff(TRIP_START, now)
-  const day1 = tripData.days.find(d => d.day === 1)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-10">
       <div className="bg-gradient-to-br from-ocean-500 to-ocean-700 rounded-2xl overflow-hidden text-white">
-        {/* Header row */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-white/20">
+        {/* Header: countdown + weather */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-white/20">
           <div>
-            <p className="text-ocean-200 text-xs font-medium uppercase tracking-widest">行程预览</p>
-            <p className="font-display font-bold text-2xl mt-0.5">
-              Day 1 · 出发日
-              <span className="text-ocean-200 text-sm font-normal ml-2">6月5日</span>
-            </p>
-            {day1 && <p className="text-ocean-100 text-sm mt-0.5">{day1.title}</p>}
-          </div>
-          <div className="flex flex-col gap-1.5 flex-shrink-0">
-            {/* Countdown badge */}
-            <div className="flex items-baseline gap-1.5 bg-white/15 rounded-xl px-3 py-2 justify-center">
-              <span className="font-display font-bold text-lg leading-none">{days}</span>
-              <span className="text-ocean-200 text-xs">天</span>
-              <span className="font-display font-bold text-base leading-none">{hours}</span>
-              <span className="text-ocean-200 text-xs">小时</span>
+            <p className="text-ocean-200 text-xs font-medium uppercase tracking-widest">出发倒计时</p>
+            <div className="flex items-baseline gap-1.5 mt-1">
+              <span className="font-display font-bold text-3xl leading-none">{days}</span>
+              <span className="text-ocean-200 text-sm">天</span>
+              <span className="font-display font-bold text-2xl leading-none ml-1">{hours}</span>
+              <span className="text-ocean-200 text-sm">小时</span>
             </div>
-            {/* Weather card */}
-            {weather ? (
-              <div className="flex items-center gap-2 bg-white/15 rounded-xl px-3 py-2">
-                <span className="text-2xl">{weather.icon}</span>
-                <div>
-                  <p className="font-bold text-lg leading-none">{weather.temp}°C</p>
-                  <p className="text-ocean-200 text-[10px] mt-0.5">富国岛实时</p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 bg-white/15 rounded-xl px-3 py-2">
-                <Sun className="w-6 h-6 text-sand-300" />
-                <p className="text-ocean-200 text-xs">天气加载中…</p>
-              </div>
-            )}
+            <p className="text-ocean-100 text-sm mt-0.5">距 2026年6月5日 出发</p>
           </div>
-        </div>
-
-        <div className="px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Day 1 bullets */}
-          {day1?.bullets && (
-            <div>
-              <p className="text-ocean-200 text-[10px] font-semibold uppercase tracking-wider mb-2">今日行程</p>
-              <ul className="space-y-1.5">
-                {day1.bullets.map((b, i) => (
-                  <li key={i} className="text-sm text-white/90 leading-snug">
-                    {b.replace(/\*\*(.*?)\*\*/g, '$1')}
-                  </li>
-                ))}
-              </ul>
+          {weather ? (
+            <div className="flex items-center gap-2 bg-white/15 rounded-xl px-3 py-2 flex-shrink-0">
+              <span className="text-2xl">{weather.icon}</span>
+              <div>
+                <p className="font-bold text-lg leading-none">{weather.temp}°C</p>
+                <p className="text-ocean-200 text-[10px] mt-0.5">富国岛实时</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 bg-white/15 rounded-xl px-3 py-2 flex-shrink-0">
+              <Sun className="w-6 h-6 text-sand-300" />
+              <p className="text-ocean-200 text-xs">天气加载中…</p>
             </div>
           )}
+        </div>
 
-          <div className="space-y-3">
-            {/* Essentials */}
-            {day1?.essentials && (
-              <div>
-                <p className="text-ocean-200 text-[10px] font-semibold uppercase tracking-wider mb-2">今日必带</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {day1.essentials.map((e, i) => (
-                    <span key={i} className="bg-white/15 rounded-full px-2.5 py-1 text-xs text-white/90">{e}</span>
-                  ))}
-                </div>
-              </div>
-            )}
+        {/* 3 core entry cards */}
+        <div className="px-5 py-4 grid grid-cols-3 gap-3">
+          <Link
+            href="/practical"
+            className="bg-white/15 hover:bg-white/25 rounded-xl p-3 text-center transition-colors"
+          >
+            <p className="text-2xl mb-1">🛂</p>
+            <p className="font-semibold text-sm">签证信息</p>
+            <p className="text-ocean-200 text-[10px] mt-0.5">越南免签政策</p>
+          </Link>
+          <Link
+            href="/practical"
+            className="bg-white/15 hover:bg-white/25 rounded-xl p-3 text-center transition-colors"
+          >
+            <p className="text-2xl mb-1">🧳</p>
+            <p className="font-semibold text-sm">打包清单</p>
+            <p className="text-ocean-200 text-[10px] mt-0.5">行李必备物品</p>
+          </Link>
+          <Link
+            href="/practical"
+            className="bg-white/15 hover:bg-white/25 rounded-xl p-3 text-center transition-colors"
+          >
+            <p className="text-2xl mb-1">✅</p>
+            <p className="font-semibold text-sm">出发检查</p>
+            <p className="text-ocean-200 text-[10px] mt-0.5">出发前行动清单</p>
+          </Link>
+        </div>
 
-            {/* Quick link */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              <a
-                href="/itinerary#day-1"
-                className="inline-flex items-center gap-1.5 bg-white text-ocean-700 rounded-full px-4 py-2 text-sm font-semibold hover:bg-ocean-50 transition-colors"
-              >
-                查看完整行程 <ChevronRight className="w-3.5 h-3.5" />
-              </a>
-            </div>
-          </div>
+        {/* CTA */}
+        <div className="px-5 pb-5">
+          <Link
+            href="/practical"
+            className="inline-flex items-center gap-1.5 bg-white text-ocean-700 rounded-full px-4 py-2 text-sm font-semibold hover:bg-ocean-50 transition-colors"
+          >
+            查看出发前关注 <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
     </div>

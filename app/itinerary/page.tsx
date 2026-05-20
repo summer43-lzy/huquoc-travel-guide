@@ -8,6 +8,7 @@ import RestaurantSection from '@/components/itinerary/RestaurantSection'
 import DayOverviewCard from '@/components/itinerary/DayOverviewCard'
 import TripWeatherForecast from '@/components/itinerary/TripWeatherForecast'
 import CopyAddressButton from '@/components/ui/CopyAddressButton'
+import BookingSummaryCard from '@/components/home/BookingSummaryCard'
 
 export default function ItineraryPage() {
   return (
@@ -46,6 +47,9 @@ export default function ItineraryPage() {
 
         {/* 4-day weather forecast — visible from May 31 through end of trip */}
         <TripWeatherForecast />
+
+        {/* Booking progress */}
+        <BookingSummaryCard className="mb-8" />
 
         {/* Top 10 Restaurants */}
         <RestaurantSection />

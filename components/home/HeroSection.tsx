@@ -1,4 +1,3 @@
-import { Calendar, Users, Hotel, Waves } from 'lucide-react'
 import Link from 'next/link'
 import { TripOverview } from '@/types'
 import ShareButton from '@/components/ui/ShareButton'
@@ -47,32 +46,17 @@ export default function HeroSection({ trip }: { trip: TripOverview }) {
           </p>
         </div>
 
-        {/* Desktop: info capsules */}
-        <div className="hidden sm:flex flex-wrap items-center justify-center gap-2 mb-5">
-          <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-sm text-white">
-            <Calendar className="w-3.5 h-3.5 text-sand-300 flex-shrink-0" />
-            <span className="font-semibold">{formatDate(trip.startDate)} — {formatDate(trip.endDate)}</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-sm text-white">
-            <Waves className="w-3.5 h-3.5 text-sand-300 flex-shrink-0" />
-            <span>{trip.totalDays} 天 {trip.totalDays - 1} 晚</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-sm text-white">
-            <Users className="w-3.5 h-3.5 text-sand-300 flex-shrink-0" />
-            <span>{trip.groupSize} 人同行</span>
-          </div>
-          {trip.hotel && (
-            <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 rounded-full px-3 py-1.5 text-sm text-white">
-              <Hotel className="w-3.5 h-3.5 text-sand-300 flex-shrink-0" />
-              <span>{trip.hotel}</span>
-            </div>
-          )}
+        {/* Desktop: trip summary line */}
+        <div className="hidden sm:flex justify-center mb-5">
+          <p className="text-white/85 text-sm font-medium bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-2">
+            2026年6月5–8日 · 4天3晚 · 10人团 · 拉菲斯塔希尔顿
+          </p>
         </div>
 
         {/* Desktop: day-by-day strip */}
         <div className="hidden sm:grid grid-cols-4 gap-2 mb-5 max-w-2xl mx-auto">
           {trip.days.map((day, i) => (
-            <a
+            <Link
               key={day.day}
               href={`/itinerary#day-${day.day}`}
               className="group bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 rounded-xl px-2.5 py-2 text-white transition-all"
@@ -86,7 +70,7 @@ export default function HeroSection({ trip }: { trip: TripOverview }) {
               <p className="text-xs font-semibold leading-tight line-clamp-2">
                 {day.title.split('·').map(s => s.trim()).slice(0, 2).join(' · ')}
               </p>
-            </a>
+            </Link>
           ))}
         </div>
 

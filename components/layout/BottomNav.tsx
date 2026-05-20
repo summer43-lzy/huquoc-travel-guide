@@ -2,13 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, CalendarDays, ClipboardCheck, Info, Camera } from 'lucide-react'
+import { Home, CalendarDays, Globe, Info, Camera } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const tabs = [
   { href: '/',            label: '首页',   Icon: Home },
   { href: '/itinerary',   label: '行程',   Icon: CalendarDays },
-  { href: '/booking',     label: '预订',   Icon: ClipboardCheck },
+  { href: '/destination', label: '目的地', Icon: Globe },
   { href: '/practical',   label: '出发前', Icon: Info },
   { href: '/memories',    label: '回忆',   Icon: Camera },
 ]
