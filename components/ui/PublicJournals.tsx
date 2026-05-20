@@ -4,14 +4,25 @@ import { useState, useEffect } from 'react'
 import { BookOpen, Globe, ChevronDown, ChevronUp } from 'lucide-react'
 import { getPublicJournals, getPublicJournalsForContent, type Journal } from '@/lib/supabase/db'
 
+// Cover images for seeded journals whose stored URLs don't match the content
+const COVER_OVERRIDES: Record<string, string> = {
+  '7c45fb08-fd05-4311-94b2-b59b53a4f577': 'https://images.unsplash.com/photo-1775874045802-2995172ff0e7?w=800&q=80', // 世界最长缆车 → Hon Thom cable car
+  '08ff1144-6022-47c7-a884-dfb429fc1ea4': 'https://images.unsplash.com/photo-1697502805231-91037995d6b7?w=800&q=80', // 深海钓鱼 → fishing boat
+  '03fc30dd-4e87-47d6-a035-6e238e09a89f': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80', // 富国岛日落 → Long Beach sunset
+}
+
+function resolvedCover(journal: Journal): string | null {
+  return COVER_OVERRIDES[journal.id] ?? journal.cover_url ?? null
+}
+
 function JournalCard({ journal }: { journal: Journal }) {
   const [expanded, setExpanded] = useState(false)
   const hasLongBody = (journal.body?.length ?? 0) > 150
 
   return (
     <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-      {journal.cover_url && (
-        <img src={journal.cover_url} alt={journal.title} className="w-full h-36 object-cover" />
+      {resolvedCover(journal) && (
+        <img src={resolvedCover(journal)!} alt={journal.title} className="w-full h-36 object-cover" />
       )}
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">

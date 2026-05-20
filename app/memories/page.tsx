@@ -1,6 +1,7 @@
 import MemoriesWall from '@/components/memories/MemoriesWall'
 import CommunityAlbum from '@/components/memories/CommunityAlbum'
 import { AllPublicJournals } from '@/components/ui/PublicJournals'
+import Link from 'next/link'
 import { BookOpen, Camera, PenLine } from 'lucide-react'
 
 export default function MemoriesPage() {
@@ -42,13 +43,13 @@ export default function MemoriesPage() {
               <h2 className="font-display text-2xl font-bold text-stone-900">旅行者游记</h2>
               <span className="text-stone-400 text-sm ml-1">· 公开分享的旅行故事</span>
             </div>
-            <a
+            <Link
               href="/profile"
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-ocean-600 hover:bg-ocean-500 text-white text-sm font-semibold rounded-full transition-colors"
             >
               <PenLine className="w-4 h-4" />
               写游记
-            </a>
+            </Link>
           </div>
           <AllPublicJournals />
         </div>

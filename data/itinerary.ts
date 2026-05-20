@@ -242,7 +242,7 @@ export const tripData: TripOverview = {
           name: '长滩晨间漫步',
           category: 'beach',
           description: '拉菲斯塔酒店私人海滩延伸至长滩（Bãi Trường）南段，清晨的海岸宁静优美，细沙柔软，迎着朝阳漫步是告别富国岛最好的方式。最后一次跳进泳池，在海滩拍下合影留念。',
-          image: 'https://images.unsplash.com/photo-1468413253369-285f9c5ccaef?w=800&q=80',
+          image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80',
           location: { lng: 103.9700, lat: 10.1500 },
           address: 'Long Beach (Bãi Trường), Dương Tơ, Phú Quốc',
           rating: 4.8,
