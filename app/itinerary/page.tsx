@@ -10,14 +10,18 @@ import TripWeatherForecast from '@/components/itinerary/TripWeatherForecast'
 import CopyAddressButton from '@/components/ui/CopyAddressButton'
 import BookingSummaryCard from '@/components/home/BookingSummaryCard'
 import ItineraryBanner from '@/components/itinerary/ItineraryBanner'
+import ItineraryAnchorNav from '@/components/itinerary/ItineraryAnchorNav'
 
 export default function ItineraryPage() {
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Banner with Day nav tabs */}
+      {/* Banner image — pure display */}
       <ItineraryBanner />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      {/* Sticky anchor nav — below banner, sticks to top on scroll */}
+      <ItineraryAnchorNav />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* 4-day weather forecast */}
         <TripWeatherForecast />
 

@@ -18,7 +18,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 backdrop-blur-md border-t border-stone-100 shadow-[0_-4px_24px_rgba(0,0,0,0.06)]">
-      <div className="flex h-16">
+      <div className="flex h-[52px]">
         {tabs.map(({ href, label, Icon }) => {
           const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
           return (
@@ -30,8 +30,8 @@ export default function BottomNav() {
                 active ? 'text-ocean-600' : 'text-stone-400 active:text-stone-600'
               )}
             >
-              <Icon className={cn('w-5 h-5', active && 'stroke-[2.5]')} />
-              <span className={cn('text-xs leading-tight font-medium', active && 'font-semibold')}>
+              <Icon className={cn('w-4 h-4', active && 'stroke-[2.5]')} />
+              <span className={cn('text-[10px] leading-tight font-medium', active && 'font-semibold')}>
                 {label}
               </span>
               {active && (

@@ -199,7 +199,7 @@ export default function CountdownWidget() {
         </div>
 
         {/* 4 core entry cards — icon left, text right, 4-col both mobile + desktop */}
-        <div className="px-4 py-3 grid grid-cols-4 gap-2">
+        <div className="px-3 py-2.5 grid grid-cols-4 gap-1.5">
           {[
             { href: '/practical#visa',     emoji: '🛂', label: '签证信息', sub: '免签政策' },
             { href: '/practical#packing',  emoji: '🧳', label: '打包清单', sub: '行李清单' },
@@ -209,12 +209,12 @@ export default function CountdownWidget() {
             <Link
               key={item.href}
               href={item.href}
-              className="bg-white/15 hover:bg-white/25 rounded-xl px-2 py-2 flex items-center gap-1.5 transition-colors min-w-0"
+              className="bg-white/15 hover:bg-white/25 rounded-xl px-1.5 py-2 flex items-center gap-1 transition-colors min-w-0"
             >
-              <span className="text-sm flex-shrink-0">{item.emoji}</span>
+              <span className="text-xs flex-shrink-0 leading-none">{item.emoji}</span>
               <div className="min-w-0">
-                <p className="font-semibold text-xs leading-tight">{item.label}</p>
-                <p className="text-ocean-200 text-xs leading-tight opacity-80">{item.sub}</p>
+                <p className="font-semibold text-[11px] leading-tight whitespace-nowrap">{item.label}</p>
+                <p className="text-ocean-200 text-[10px] leading-tight whitespace-nowrap">{item.sub}</p>
               </div>
             </Link>
           ))}

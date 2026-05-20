@@ -83,8 +83,8 @@ export default function TripWeatherForecast() {
   }, [])
 
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-1">
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-stone-700">🌤️ 富国岛天气预报</span>
           {forecasts.some(f => f.tripLabel) && (
@@ -101,7 +101,7 @@ export default function TripWeatherForecast() {
       {loading ? (
         <div className="grid grid-cols-3 gap-3">
           {[0, 1, 2].map(i => (
-            <div key={i} className="h-32 bg-stone-100 rounded-2xl animate-pulse" />
+            <div key={i} className="h-24 bg-stone-100 rounded-xl animate-pulse" />
           ))}
         </div>
       ) : forecasts.length === 0 ? (
@@ -113,7 +113,7 @@ export default function TripWeatherForecast() {
           {forecasts.map(fc => (
             <div
               key={fc.date}
-              className={`rounded-2xl p-3 text-center transition-all ${
+              className={`rounded-xl p-2.5 text-center transition-all ${
                 fc.isToday
                   ? 'bg-ocean-600 text-white shadow-md ring-2 ring-ocean-400'
                   : fc.tripLabel
@@ -143,7 +143,7 @@ export default function TripWeatherForecast() {
               </div>
 
               {/* Icon */}
-              <p className="text-2xl mb-1.5">{fc.icon}</p>
+              <p className="text-xl mb-1">{fc.icon}</p>
 
               {/* Temp */}
               <p className={`font-bold text-sm leading-none ${fc.isToday ? 'text-white' : fc.tripLabel ? 'text-ocean-800' : 'text-stone-800'}`}>

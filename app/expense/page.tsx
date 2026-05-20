@@ -152,7 +152,7 @@ function ExpenseForm({
   const selectedDayLabel = DAY_OPTIONS.find(d => d.value === day)?.label ?? '不指定'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 pb-[72px] sm:pb-0">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-6 pb-[60px] sm:pb-0">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl flex flex-col max-h-[calc(100dvh-80px)] sm:max-h-[90vh]">
         <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100 flex-shrink-0">
           <h3 className="font-display font-bold text-stone-900">{existing ? '编辑账单' : '新增消费'}</h3>

@@ -71,7 +71,7 @@ function AddMemoryModal({ onClose, onAdd }: { onClose: () => void; onAdd: () => 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 pb-[72px] sm:pb-0">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 pb-[60px] sm:pb-0">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
           <h3 className="font-display font-bold text-stone-900">添加照片回忆</h3>
