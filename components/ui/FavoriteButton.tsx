@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 import { Heart, CheckCircle } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
-import { toggleFavorite, isFavorite } from '@/lib/localStorage'
 import { toggleFavoriteDb, isFavoriteDb } from '@/lib/supabase/db'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import type { User } from '@supabase/supabase-js'
+import LoginModal from '@/components/auth/LoginModal'
 
 function FavoriteToast({ visible }: { visible: boolean }) {
   if (typeof window === 'undefined') return null
@@ -46,6 +46,7 @@ export default function FavoriteButton({
   const id = contentId ?? attractionId ?? ''
   const [faved, setFaved] = useState(false)
   const [showToast, setShowToast] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
@@ -56,23 +57,18 @@ export default function FavoriteButton({
   }, [])
 
   useEffect(() => {
-    if (!id) return
-    if (user) {
-      isFavoriteDb(user.id, contentType, id).then(setFaved)
-    } else {
-      setFaved(isFavorite(id))
-    }
+    if (!id || !user) return
+    isFavoriteDb(user.id, contentType, id).then(setFaved)
   }, [id, user, contentType])
 
   async function handleClick(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    let newState: boolean
-    if (user) {
-      newState = await toggleFavoriteDb(user.id, contentType, id)
-    } else {
-      newState = toggleFavorite(id)
+    if (!user) {
+      setShowLogin(true)
+      return
     }
+    const newState = await toggleFavoriteDb(user.id, contentType, id)
     setFaved(newState)
     if (newState) {
       setShowToast(true)
@@ -94,6 +90,7 @@ export default function FavoriteButton({
         <Heart className={cn('w-4 h-4', faved && 'fill-white')} />
       </button>
       <FavoriteToast visible={showToast} />
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
     </>
   )
 }

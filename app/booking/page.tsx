@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { CheckCircle, Clock, AlertCircle, Phone } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { getAllBookingStatuses, upsertBookingStatus } from '@/lib/supabase/db'
+import type { User } from '@supabase/supabase-js'
+import LoginModal from '@/components/auth/LoginModal'
 
 const bookingItems = [
   {
@@ -72,40 +76,39 @@ const statusConfig: Record<Status, { icon: React.ReactNode; label: string; color
   },
 }
 
-const STORAGE_KEY = 'booking-status-v1'
-
-function loadOverrides(): Record<string, Status> {
-  if (typeof window === 'undefined') return {}
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')
-  } catch {
-    return {}
-  }
-}
-
-function saveOverrides(overrides: Record<string, Status>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides))
-}
-
 export default function BookingPage() {
   const [overrides, setOverrides] = useState<Record<string, Status>>({})
   const [mounted, setMounted] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [showLogin, setShowLogin] = useState(false)
 
   useEffect(() => {
-    setOverrides(loadOverrides())
-    setMounted(true)
+    const sb = createClient()
+    sb.auth.getUser().then(({ data }) => setUser(data.user))
+    const { data: { subscription } } = sb.auth.onAuthStateChange((_, session) => setUser(session?.user ?? null))
+
+    getAllBookingStatuses().then(statuses => {
+      setOverrides(statuses as Record<string, Status>)
+      setMounted(true)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   function getStatus(item: { id: string; status: string }): Status {
     return overrides[item.id] ?? (item.status as Status)
   }
 
-  function cycleStatus(id: string, current: Status) {
+  async function cycleStatus(id: string, current: Status) {
+    if (!user) {
+      setShowLogin(true)
+      return
+    }
     const idx = STATUS_CYCLE.indexOf(current)
     const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length]
-    const updated = { ...overrides, [id]: next }
-    setOverrides(updated)
-    saveOverrides(updated)
+    setOverrides(prev => ({ ...prev, [id]: next }))
+    const nickname = user.user_metadata?.name ?? user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? '未知'
+    await upsertBookingStatus(id, next, user.id, nickname)
   }
 
   const allItems = bookingItems.flatMap(c => c.items)
@@ -142,7 +145,20 @@ export default function BookingPage() {
               style={{ width: `${(confirmed / total) * 100}%` }}
             />
           </div>
-          <p className="text-xs text-stone-400 mt-2">点击状态标签可切换：待确认 → 已确认 → 需跟进</p>
+          {mounted && !user ? (
+            <p className="text-xs text-stone-400 mt-2">
+              点击状态标签可切换 ·{' '}
+              <button
+                onClick={() => setShowLogin(true)}
+                className="text-ocean-500 hover:text-ocean-600 underline underline-offset-2"
+              >
+                登录
+              </button>
+              后可保存
+            </p>
+          ) : (
+            <p className="text-xs text-stone-400 mt-2">点击状态标签可切换：待确认 → 已确认 → 需跟进</p>
+          )}
         </div>
 
         {/* Booking items by category */}
@@ -161,7 +177,7 @@ export default function BookingPage() {
                     <div key={item.id} className="bg-white rounded-xl border border-stone-100 shadow-sm p-4 flex items-start gap-3">
                       <button
                         onClick={() => cycleStatus(item.id, status)}
-                        title={cfg.hint}
+                        title={user ? cfg.hint : '登录后可更新状态'}
                         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border flex-shrink-0 mt-0.5 transition-opacity hover:opacity-75 cursor-pointer ${cfg.color}`}
                       >
                         {cfg.icon}
@@ -204,6 +220,8 @@ export default function BookingPage() {
           </div>
         </div>
       </div>
+
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
     </div>
   )
 }

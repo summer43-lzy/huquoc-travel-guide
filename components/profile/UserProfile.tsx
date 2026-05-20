@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Heart, BookOpen, MapPin, Plus, Globe, Lock, Trash2, Edit3, LogOut } from 'lucide-react'
+import { Heart, BookOpen, MapPin, Plus, Globe, Lock, Trash2, Edit3, LogOut, Wallet, Check, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import {
   getFavorites, getUserJournals, getFootprints, getUserStats,
-  deleteJournal, type Journal, type Footprint,
+  deleteJournal, getProfile, upsertProfile, getMyExpenses,
+  type Journal, type Footprint, type Expense,
 } from '@/lib/supabase/db'
 import { attractions } from '@/data/attractions'
 import { restaurants } from '@/data/restaurants'
@@ -15,7 +16,7 @@ import JournalEditor from './JournalEditor'
 import CategoryBadge from '@/components/ui/CategoryBadge'
 import { useRouter } from 'next/navigation'
 
-type Tab = 'favorites' | 'journals' | 'footprints'
+type Tab = 'favorites' | 'journals' | 'footprints' | 'expenses'
 
 function StatCard({ value, label }: { value: number; label: string }) {
   return (
@@ -38,6 +39,9 @@ function resolveContent(contentType: string, contentId: string) {
   return null
 }
 
+const CURRENCY_LABELS: Record<string, string> = { CNY: '¥', VND: '₫', SGD: 'S$' }
+const DAY_LABELS: Record<number, string> = { 1: 'Day 1', 2: 'Day 2', 3: 'Day 3', 4: 'Day 4' }
+
 export default function UserProfile({ user }: { user: User }) {
   const router = useRouter()
   const [tab, setTab] = useState<Tab>('favorites')
@@ -45,10 +49,17 @@ export default function UserProfile({ user }: { user: User }) {
   const [favItems, setFavItems] = useState<{ content_type: string; content_id: string }[]>([])
   const [journals, setJournals] = useState<Journal[]>([])
   const [footprints, setFootprints] = useState<Footprint[]>([])
+  const [myExpenses, setMyExpenses] = useState<Expense[]>([])
   const [showEditor, setShowEditor] = useState(false)
   const [editingJournal, setEditingJournal] = useState<Journal | undefined>()
 
-  const displayName = user.user_metadata?.name ?? user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? '旅行者'
+  // Nickname state
+  const googleName = user.user_metadata?.name ?? user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? '旅行者'
+  const [nickname, setNickname] = useState(googleName)
+  const [editingNickname, setEditingNickname] = useState(false)
+  const [nicknameInput, setNicknameInput] = useState(googleName)
+  const [savingNickname, setSavingNickname] = useState(false)
+
   const avatar = user.user_metadata?.avatar_url
 
   useEffect(() => {
@@ -56,6 +67,13 @@ export default function UserProfile({ user }: { user: User }) {
     getFavorites(user.id).then(setFavItems)
     getUserJournals(user.id).then(setJournals)
     getFootprints(user.id).then(setFootprints)
+    getMyExpenses(user.id).then(setMyExpenses)
+    getProfile(user.id).then(p => {
+      if (p?.nickname) {
+        setNickname(p.nickname)
+        setNicknameInput(p.nickname)
+      }
+    })
   }, [user.id])
 
   async function handleSignOut() {
@@ -83,10 +101,32 @@ export default function UserProfile({ user }: { user: User }) {
     getUserStats(user.id).then(setStats)
   }
 
+  async function saveNickname() {
+    const trimmed = nicknameInput.trim()
+    if (!trimmed) return
+    setSavingNickname(true)
+    await upsertProfile(user.id, trimmed)
+    setNickname(trimmed)
+    setEditingNickname(false)
+    setSavingNickname(false)
+  }
+
+  function cancelNicknameEdit() {
+    setNicknameInput(nickname)
+    setEditingNickname(false)
+  }
+
+  // Group expenses by currency for total display
+  const expenseTotals = myExpenses.reduce<Record<string, number>>((acc, e) => {
+    acc[e.currency] = (acc[e.currency] ?? 0) + e.amount
+    return acc
+  }, {})
+
   const tabs: { key: Tab; label: string; icon: React.ReactNode; count: number }[] = [
     { key: 'favorites', label: '收藏', icon: <Heart className="w-4 h-4" />, count: stats.favorites },
     { key: 'journals', label: '游记', icon: <BookOpen className="w-4 h-4" />, count: stats.journals },
     { key: 'footprints', label: '足迹', icon: <MapPin className="w-4 h-4" />, count: stats.footprints },
+    { key: 'expenses', label: '消费', icon: <Wallet className="w-4 h-4" />, count: myExpenses.length },
   ]
 
   return (
@@ -100,12 +140,52 @@ export default function UserProfile({ user }: { user: User }) {
                 <img src={avatar} alt="" className="w-16 h-16 rounded-full border-2 border-white/30 object-cover" />
               ) : (
                 <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold">
-                  {displayName[0]?.toUpperCase()}
+                  {nickname[0]?.toUpperCase()}
                 </div>
               )}
               <div>
-                <h1 className="font-display text-xl font-bold">{displayName}</h1>
+                <h1 className="font-display text-xl font-bold">{googleName}</h1>
                 <p className="text-ocean-200 text-sm mt-0.5">{user.email}</p>
+                {/* Nickname edit row */}
+                <div className="mt-2 flex items-center gap-2">
+                  {editingNickname ? (
+                    <>
+                      <input
+                        value={nicknameInput}
+                        onChange={e => setNicknameInput(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') saveNickname(); if (e.key === 'Escape') cancelNicknameEdit() }}
+                        className="bg-white/20 text-white placeholder-white/50 rounded-lg px-2 py-1 text-xs w-32 focus:outline-none focus:ring-1 focus:ring-white/50"
+                        placeholder="输入昵称"
+                        autoFocus
+                        maxLength={20}
+                      />
+                      <button
+                        onClick={saveNickname}
+                        disabled={savingNickname}
+                        className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={cancelNicknameEdit}
+                        className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-white/60 text-xs">昵称：{nickname}</span>
+                      <button
+                        onClick={() => { setNicknameInput(nickname); setEditingNickname(true) }}
+                        className="w-5 h-5 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors"
+                        title="编辑昵称"
+                      >
+                        <Edit3 className="w-3 h-3" />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             <button
@@ -265,6 +345,65 @@ export default function UserProfile({ user }: { user: User }) {
                 })}
               </div>
             )
+          )}
+
+          {/* Expenses tab */}
+          {tab === 'expenses' && (
+            <div className="space-y-4">
+              {/* Summary */}
+              {myExpenses.length > 0 && (
+                <div className="bg-ocean-50 border border-ocean-100 rounded-2xl p-4">
+                  <p className="text-xs font-semibold text-ocean-600 mb-2">我的消费总计</p>
+                  <div className="flex flex-wrap gap-3">
+                    {Object.entries(expenseTotals).map(([currency, total]) => (
+                      <div key={currency} className="flex items-baseline gap-1">
+                        <span className="font-bold text-xl text-ocean-700">
+                          {CURRENCY_LABELS[currency] ?? ''}{total.toLocaleString()}
+                        </span>
+                        <span className="text-xs text-ocean-500">{currency}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Link
+                    href="/expense"
+                    className="mt-3 inline-flex items-center gap-1 text-xs text-ocean-600 hover:text-ocean-700 font-medium"
+                  >
+                    查看全队账单 →
+                  </Link>
+                </div>
+              )}
+
+              {myExpenses.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="text-5xl mb-3">💰</div>
+                  <p className="text-stone-500 text-sm">还没有消费记录</p>
+                  <Link href="/expense" className="mt-4 inline-block text-ocean-600 text-sm font-medium hover:underline">
+                    去记一笔 →
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {myExpenses.map(e => (
+                    <div key={e.id} className="bg-white rounded-xl border border-stone-100 shadow-sm p-3 flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-stone-800 text-sm truncate">{e.purpose}</p>
+                        <p className="text-xs text-stone-400 mt-0.5">
+                          {e.day ? DAY_LABELS[e.day] ?? `Day ${e.day}` : ''}
+                          {e.day && ' · '}
+                          {new Date(e.created_at).toLocaleDateString('zh-CN')}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-bold text-stone-800">
+                          {CURRENCY_LABELS[e.currency] ?? ''}{e.amount.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-stone-400">{e.currency}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
