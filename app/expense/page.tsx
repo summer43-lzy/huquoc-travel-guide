@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Plus, Trash2, Edit3, X, Loader2, Upload, ChevronDown, LogIn, Lock } from 'lucide-react'
+import { Plus, Trash2, Edit3, X, Loader2, Upload, ChevronDown, LogIn, Lock, Copy, Check, Users, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import {
   getExpenses, addExpense, updateExpense, deleteExpense,
@@ -276,6 +276,217 @@ function ExpenseForm({
   )
 }
 
+// ── Settlement helpers ────────────────────────────────────────────────────────
+
+interface PersonBalance {
+  nickname: string
+  paid: number   // CNY
+  share: number  // CNY
+  balance: number // paid - share; positive = should receive, negative = owes
+}
+
+interface Transfer {
+  from: string
+  to: string
+  amount: number
+}
+
+function computeBalances(expenses: Expense[], rates: Rates, headCount: number): PersonBalance[] {
+  const totalCNY = expenses.reduce((s, e) => s + toCNY(e.amount, e.currency as Currency, rates), 0)
+  const share = headCount > 0 ? totalCNY / headCount : 0
+  const paid: Record<string, number> = {}
+  for (const e of expenses) {
+    paid[e.nickname] = (paid[e.nickname] ?? 0) + toCNY(e.amount, e.currency as Currency, rates)
+  }
+  return Object.entries(paid).map(([nickname, p]) => ({
+    nickname,
+    paid: p,
+    share,
+    balance: p - share,
+  }))
+}
+
+function computeTransfers(balances: PersonBalance[], headCount: number, totalCNY: number): Transfer[] {
+  const share = headCount > 0 ? totalCNY / headCount : 0
+  // Build mutable balance array including anonymous debtors (people who paid 0)
+  const entries = balances.map(b => ({ name: b.nickname, bal: b.balance }))
+  // add anonymous slots for unlisted members
+  const listedCount = balances.length
+  if (headCount > listedCount) {
+    entries.push({ name: `其余 ${headCount - listedCount} 人`, bal: -(share * (headCount - listedCount)) })
+  }
+  const transfers: Transfer[] = []
+  const eps = 0.01
+  // greedy: always pair largest creditor with largest debtor
+  const list = entries.map(e => ({ ...e }))
+  for (let i = 0; i < 200; i++) {
+    list.sort((a, b) => b.bal - a.bal)
+    const creditor = list[0]
+    const debtor = list[list.length - 1]
+    if (creditor.bal < eps || debtor.bal > -eps) break
+    const amount = Math.min(creditor.bal, -debtor.bal)
+    transfers.push({ from: debtor.name, to: creditor.name, amount })
+    creditor.bal -= amount
+    debtor.bal += amount
+  }
+  return transfers
+}
+
+function SettlementTab({
+  expenses, rates, rateLoading,
+}: { expenses: Expense[]; rates: Rates; rateLoading: boolean }) {
+  const [headCount, setHeadCount] = useState(10)
+  const [copied, setCopied] = useState(false)
+
+  const totalCNY = expenses.reduce((s, e) => s + toCNY(e.amount, e.currency as Currency, rates), 0)
+  const share = headCount > 0 ? totalCNY / headCount : 0
+  const balances = computeBalances(expenses, rates, headCount)
+  const transfers = computeTransfers(balances, headCount, totalCNY)
+  const listedCount = balances.length
+  const anonCount = Math.max(0, headCount - listedCount)
+
+  function copySettlement() {
+    const lines: string[] = [
+      `【富国岛旅行 AA 结算】`,
+      `总消费：¥${totalCNY.toFixed(1)}，人均：¥${share.toFixed(1)}（${headCount}人）`,
+      '',
+      '─ 每人账单 ─',
+      ...balances.map(b =>
+        `${b.nickname}：已付¥${b.paid.toFixed(1)}，${b.balance >= 0 ? `应收¥${b.balance.toFixed(1)}` : `应付¥${(-b.balance).toFixed(1)}`}`
+      ),
+      ...(anonCount > 0 ? [`其余${anonCount}人：各应付¥${share.toFixed(1)}`] : []),
+      '',
+      '─ 转账指令 ─',
+      ...transfers.map(t => `${t.from} → ${t.to}  ¥${t.amount.toFixed(1)}`),
+    ]
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-5 space-y-5">
+      {/* Participant count */}
+      <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-ocean-500" />
+            <span className="text-sm font-semibold text-stone-700">参与人数</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setHeadCount(c => Math.max(1, c - 1))}
+              className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center font-bold text-stone-600 transition-colors"
+            >−</button>
+            <span className="w-8 text-center font-display font-bold text-xl text-stone-900">{headCount}</span>
+            <button
+              onClick={() => setHeadCount(c => c + 1)}
+              className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center font-bold text-stone-600 transition-colors"
+            >+</button>
+          </div>
+        </div>
+        <div className="mt-3 pt-3 border-t border-stone-50 grid grid-cols-3 gap-3 text-center">
+          <div>
+            <p className="text-stone-400 text-xs">总消费</p>
+            <p className="font-display font-bold text-lg text-stone-900">¥{totalCNY.toFixed(1)}</p>
+          </div>
+          <div>
+            <p className="text-stone-400 text-xs">人均应付</p>
+            <p className="font-display font-bold text-lg text-ocean-600">¥{share.toFixed(1)}</p>
+          </div>
+          <div>
+            <p className="text-stone-400 text-xs">笔数</p>
+            <p className="font-display font-bold text-lg text-stone-900">{expenses.length}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Per-person balance */}
+      <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-stone-50">
+          <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">每人账单</p>
+        </div>
+        <div className="divide-y divide-stone-50">
+          {balances.map(b => (
+            <div key={b.nickname} className="px-4 py-3 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-stone-800 truncate">{b.nickname}</p>
+                <p className="text-xs text-stone-400 mt-0.5">已付 ¥{b.paid.toFixed(1)}</p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                {b.balance >= 0 ? (
+                  <span className="inline-block bg-emerald-50 text-emerald-700 rounded-full px-3 py-1 text-xs font-semibold">
+                    应收 ¥{b.balance.toFixed(1)}
+                  </span>
+                ) : (
+                  <span className="inline-block bg-rose-50 text-rose-600 rounded-full px-3 py-1 text-xs font-semibold">
+                    应付 ¥{(-b.balance).toFixed(1)}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+          {anonCount > 0 && (
+            <div className="px-4 py-3 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-stone-400 truncate">其余 {anonCount} 人（未记账）</p>
+                <p className="text-xs text-stone-300 mt-0.5">已付 ¥0</p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <span className="inline-block bg-rose-50 text-rose-600 rounded-full px-3 py-1 text-xs font-semibold">
+                  各付 ¥{share.toFixed(1)}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Transfer paths */}
+      {transfers.length > 0 && (
+        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-stone-50 flex items-center justify-between">
+            <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">最优转账路径</p>
+            <span className="text-xs text-stone-400">{transfers.length} 笔结清</span>
+          </div>
+          <div className="divide-y divide-stone-50">
+            {transfers.map((t, i) => (
+              <div key={i} className="px-4 py-3 flex items-center gap-2">
+                <span className="text-sm font-semibold text-rose-600 min-w-0 truncate flex-1">{t.from}</span>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-300" />
+                  <span className="text-sm font-bold text-stone-900">¥{t.amount.toFixed(1)}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-300" />
+                </div>
+                <span className="text-sm font-semibold text-emerald-600 min-w-0 truncate flex-1 text-right">{t.to}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {expenses.length === 0 && (
+        <div className="text-center py-16 bg-white rounded-2xl border border-stone-100">
+          <div className="text-4xl mb-3">📊</div>
+          <p className="text-stone-500 text-sm">先在流水 Tab 记录消费，结算自动计算</p>
+        </div>
+      )}
+
+      {/* Copy button */}
+      {expenses.length > 0 && (
+        <button
+          onClick={copySettlement}
+          className="w-full flex items-center justify-center gap-2 py-3 bg-ocean-600 hover:bg-ocean-500 text-white font-semibold rounded-2xl transition-colors text-sm"
+        >
+          {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+          {copied ? '已复制！粘贴到微信群即可' : '复制结算文本'}
+        </button>
+      )}
+    </div>
+  )
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function ExpensePage() {
@@ -289,6 +500,7 @@ export default function ExpensePage() {
   const [editTarget, setEditTarget] = useState<Expense | undefined>()
   const [showLogin, setShowLogin] = useState(false)
   const [showDayFilter, setShowDayFilter] = useState<number | 'all'>('all')
+  const [activeTab, setActiveTab] = useState<'ledger' | 'settle'>('ledger')
 
   useEffect(() => {
     const sb = createClient()
@@ -386,7 +598,7 @@ export default function ExpensePage() {
       <div className="min-h-screen bg-stone-50">
         {/* Header */}
         <div className="bg-gradient-to-br from-ocean-600 to-ocean-800 text-white">
-          <div className="max-w-2xl mx-auto px-4 pt-8 pb-6">
+          <div className="max-w-2xl mx-auto px-4 pt-8 pb-4">
             <p className="text-ocean-200 text-xs font-medium uppercase tracking-widest mb-1">团队记账</p>
             <h1 className="font-display text-3xl font-bold mb-4">消费流水</h1>
             {/* Total + rate */}
@@ -410,102 +622,126 @@ export default function ExpensePage() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className="max-w-2xl mx-auto px-4 py-5">
-          {/* Toolbar */}
-          <div className="flex items-center justify-between mb-4 gap-3">
-            {/* Day filter */}
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1">
-              {[{ value: 'all' as const, label: '全部' }, ...DAY_OPTIONS.filter(d => d.value > 0).map(d => ({ value: d.value, label: `Day ${d.value}` }))].map(opt => (
+            {/* Tab switcher */}
+            <div className="flex gap-1 mt-4">
+              {([['ledger', '流水明细'], ['settle', 'AA 结算']] as const).map(([key, label]) => (
                 <button
-                  key={opt.value}
-                  onClick={() => setShowDayFilter(opt.value)}
-                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                    showDayFilter === opt.value
-                      ? 'bg-ocean-600 text-white border-ocean-600'
-                      : 'bg-white text-stone-600 border-stone-200 hover:border-ocean-300'
+                  key={key}
+                  onClick={() => setActiveTab(key)}
+                  className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                    activeTab === key
+                      ? 'bg-white text-ocean-700'
+                      : 'bg-white/15 text-white/80 hover:bg-white/25'
                   }`}
                 >
-                  {opt.label}
+                  {label}
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => { setEditTarget(undefined); setShowForm(true) }}
-              className="flex-shrink-0 flex items-center gap-1.5 bg-ocean-600 hover:bg-ocean-500 text-white rounded-full px-4 py-2 text-sm font-semibold transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              记账
-            </button>
           </div>
+        </div>
 
-          {/* Expense list */}
-          {filtered.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-2xl border border-stone-100">
-              <div className="text-4xl mb-3">💸</div>
-              <p className="text-stone-500 text-sm">还没有记录，点击右上角"记账"添加</p>
+        {/* ── Ledger tab ── */}
+        {activeTab === 'ledger' && (
+          <div className="max-w-2xl mx-auto px-4 py-5">
+            {/* Toolbar */}
+            <div className="flex items-center justify-between mb-4 gap-3">
+              {/* Day filter */}
+              <div className="flex gap-1.5 overflow-x-auto scrollbar-hide flex-1">
+                {[{ value: 'all' as const, label: '全部' }, ...DAY_OPTIONS.filter(d => d.value > 0).map(d => ({ value: d.value, label: `Day ${d.value}` }))].map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setShowDayFilter(opt.value)}
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                      showDayFilter === opt.value
+                        ? 'bg-ocean-600 text-white border-ocean-600'
+                        : 'bg-white text-stone-600 border-stone-200 hover:border-ocean-300'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => { setEditTarget(undefined); setShowForm(true) }}
+                className="flex-shrink-0 flex items-center gap-1.5 bg-ocean-600 hover:bg-ocean-500 text-white rounded-full px-4 py-2 text-sm font-semibold transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                记账
+              </button>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {filtered.map(e => {
-                const cnyVal = toCNY(e.amount, e.currency as Currency, rates)
-                const isOwn = e.user_id === user.id
-                const dayLabel = DAY_OPTIONS.find(d => d.value === e.day)?.label
-                return (
-                  <div key={e.id} className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-                    {e.image_url && (
-                      <img src={e.image_url} alt="凭证" className="w-full h-32 object-cover" />
-                    )}
-                    <div className="p-4 flex items-start gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <p className="font-semibold text-stone-800 text-sm leading-snug">{e.purpose}</p>
-                          <div className="flex-shrink-0 text-right">
-                            <p className="font-bold text-stone-900 text-sm">
-                              {CURRENCY_SYMBOL[e.currency]}{e.currency === 'VND'
-                                ? e.amount.toLocaleString()
-                                : e.amount.toFixed(2)}
-                            </p>
-                            {e.currency !== 'CNY' && (
-                              <p className="text-stone-400 text-xs">≈ ¥{formatCNY(cnyVal)}</p>
+
+            {/* Expense list */}
+            {filtered.length === 0 ? (
+              <div className="text-center py-20 bg-white rounded-2xl border border-stone-100">
+                <div className="text-4xl mb-3">💸</div>
+                <p className="text-stone-500 text-sm">还没有记录，点击右上角"记账"添加</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filtered.map(e => {
+                  const cnyVal = toCNY(e.amount, e.currency as Currency, rates)
+                  const isOwn = e.user_id === user.id
+                  const dayLabel = DAY_OPTIONS.find(d => d.value === e.day)?.label
+                  return (
+                    <div key={e.id} className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+                      {e.image_url && (
+                        <img src={e.image_url} alt="凭证" className="w-full h-32 object-cover" />
+                      )}
+                      <div className="p-4 flex items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <p className="font-semibold text-stone-800 text-sm leading-snug">{e.purpose}</p>
+                            <div className="flex-shrink-0 text-right">
+                              <p className="font-bold text-stone-900 text-sm">
+                                {CURRENCY_SYMBOL[e.currency]}{e.currency === 'VND'
+                                  ? e.amount.toLocaleString()
+                                  : e.amount.toFixed(2)}
+                              </p>
+                              {e.currency !== 'CNY' && (
+                                <p className="text-stone-400 text-xs">≈ ¥{formatCNY(cnyVal)}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs text-stone-500 font-medium">{e.nickname}</span>
+                            {dayLabel && (
+                              <span className="text-xs bg-ocean-50 text-ocean-600 px-2 py-0.5 rounded-full">{dayLabel}</span>
                             )}
+                            <span className="text-xs text-stone-300">
+                              {new Date(e.created_at).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs text-stone-500 font-medium">{e.nickname}</span>
-                          {dayLabel && (
-                            <span className="text-xs bg-ocean-50 text-ocean-600 px-2 py-0.5 rounded-full">{dayLabel}</span>
-                          )}
-                          <span className="text-xs text-stone-300">
-                            {new Date(e.created_at).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
+                        {isOwn && (
+                          <div className="flex gap-1 flex-shrink-0">
+                            <button
+                              onClick={() => { setEditTarget(e); setShowForm(true) }}
+                              className="p-1.5 text-stone-400 hover:text-ocean-600 transition-colors"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(e.id)}
+                              className="p-1.5 text-stone-400 hover:text-rose-500 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
                       </div>
-                      {isOwn && (
-                        <div className="flex gap-1 flex-shrink-0">
-                          <button
-                            onClick={() => { setEditTarget(e); setShowForm(true) }}
-                            className="p-1.5 text-stone-400 hover:text-ocean-600 transition-colors"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(e.id)}
-                            className="p-1.5 text-stone-400 hover:text-rose-500 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
                     </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Settlement tab ── */}
+        {activeTab === 'settle' && (
+          <SettlementTab expenses={expenses} rates={rates} rateLoading={rateLoading} />
+        )}
       </div>
 
       {showForm && (
