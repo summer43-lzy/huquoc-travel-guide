@@ -9,8 +9,8 @@ export default function HomePage() {
   return (
     <>
       <HeroSection trip={tripData} />
-      <TripStatusBar />
       <CountdownWidget />
+      <TripStatusBar />
       <OverviewSection trip={tripData} />
       <DailyItinerary trip={tripData} />
     </>
