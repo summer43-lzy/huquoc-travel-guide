@@ -6,6 +6,7 @@ import StarRating from '@/components/ui/StarRating'
 import AttractionRating from '@/components/ui/AttractionRating'
 import RestaurantSection from '@/components/itinerary/RestaurantSection'
 import DayOverviewCard from '@/components/itinerary/DayOverviewCard'
+import TripWeatherForecast from '@/components/itinerary/TripWeatherForecast'
 import CopyAddressButton from '@/components/ui/CopyAddressButton'
 
 export default function ItineraryPage() {
@@ -42,6 +43,9 @@ export default function ItineraryPage() {
             ))}
           </div>
         </div>
+
+        {/* 4-day weather forecast — visible from May 31 through end of trip */}
+        <TripWeatherForecast />
 
         {/* Top 10 Restaurants */}
         <RestaurantSection />
