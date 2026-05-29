@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Plus, Trash2, Edit3, X, Loader2, Upload, ChevronDown, LogIn, Copy, Users, ArrowRight } from 'lucide-react'
 import Toast from '@/components/ui/Toast'
 import { usePullToRefresh } from '@/lib/usePullToRefresh'
+import { readCache, writeCache, isFresh } from '@/lib/clientCache'
 import { createClient } from '@/lib/supabase/client'
 import {
   getExpenses, addExpense, updateExpense, deleteExpense,
@@ -28,13 +29,25 @@ const DAY_OPTIONS = [
 
 interface Rates { VND: number; CNY: number; SGD: number }
 
+const RATES_CACHE_KEY = 'exchange-rates-cny'
+const RATES_TTL = 6 * 60 * 60 * 1000 // 6 小时
+const RATES_FALLBACK: Rates = { CNY: 1, VND: 3450, SGD: 0.187 }
+
 async function fetchRates(): Promise<Rates> {
-  const res = await fetch('https://open.er-api.com/v6/latest/CNY')
-  const json = await res.json()
-  return {
-    CNY: 1,
-    VND: json.rates?.VND ?? 3450,
-    SGD: json.rates?.SGD ?? 0.187,
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/CNY')
+    const json = await res.json()
+    const rates: Rates = {
+      CNY: 1,
+      VND: json.rates?.VND ?? 3450,
+      SGD: json.rates?.SGD ?? 0.187,
+    }
+    writeCache(RATES_CACHE_KEY, rates)
+    return rates
+  } catch {
+    // network failed — fall back to last cached rate, then hardcoded default
+    const cached = readCache<Rates>(RATES_CACHE_KEY)
+    return cached?.value ?? RATES_FALLBACK
   }
 }
 
@@ -544,6 +557,13 @@ export default function ExpensePage() {
         }
       }
     })
+    // Show cached rates instantly; only hit the network if stale/missing
+    const cachedRates = readCache<Rates>(RATES_CACHE_KEY)
+    if (cachedRates) {
+      setRates(cachedRates.value)
+      setRateLoading(false)
+      if (isFresh(cachedRates.savedAt, RATES_TTL)) return
+    }
     fetchRates().then(r => { setRates(r); setRateLoading(false) }).catch(() => setRateLoading(false))
   }, [])
 

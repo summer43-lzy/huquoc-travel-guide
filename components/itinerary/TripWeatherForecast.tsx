@@ -2,6 +2,17 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { usePullToRefresh } from '@/lib/usePullToRefresh'
+import { readCache, writeCache, isFresh } from '@/lib/clientCache'
+
+const WEATHER_CACHE_KEY = 'weather-phuquoc-j1'
+const WEATHER_TTL = 60 * 60 * 1000 // 1 小时
+
+interface WeatherRaw {
+  date: string
+  maxtempC: string
+  mintempC: string
+  hourly?: { weatherDesc?: { value: string }[] }[]
+}
 
 // Trip dates for labelling
 const TRIP_DAY_LABELS: Record<string, string> = {
@@ -41,6 +52,24 @@ function formatDateLabel(dateStr: string): string {
   return `${parseInt(m)}月${parseInt(d)}日`
 }
 
+// Re-parse raw weather into display models (isToday/tripLabel depend on current
+// date, so always recompute on render — never trust cached isToday flags)
+function parseWeather(weatherArr: WeatherRaw[]): DayForecast[] {
+  const today = todayVietnam()
+  return weatherArr.map(w => {
+    const desc = w.hourly?.[4]?.weatherDesc?.[0]?.value ?? ''
+    return {
+      date: w.date,
+      maxC: w.maxtempC,
+      minC: w.mintempC,
+      desc,
+      icon: iconForWeather(desc, parseInt(w.maxtempC)),
+      isToday: w.date === today,
+      tripLabel: TRIP_DAY_LABELS[w.date] ?? null,
+    }
+  })
+}
+
 export default function TripWeatherForecast() {
   const [forecasts, setForecasts] = useState<DayForecast[]>([])
   const [loading, setLoading] = useState(true)
@@ -48,42 +77,34 @@ export default function TripWeatherForecast() {
 
   const fetchWeather = useCallback(async () => {
     setLoading(true)
-    const today = todayVietnam()
     try {
       const r = await fetch('https://wttr.in/Phu+Quoc?format=j1')
-      const json: {
-        weather?: {
-          date: string
-          maxtempC: string
-          mintempC: string
-          hourly?: { weatherDesc?: { value: string }[] }[]
-        }[]
-      } = await r.json()
+      const json: { weather?: WeatherRaw[] } = await r.json()
       const weatherArr = json.weather ?? []
-      const parsed: DayForecast[] = weatherArr.map(w => {
-        const maxC = w.maxtempC
-        const minC = w.mintempC
-        const desc = w.hourly?.[4]?.weatherDesc?.[0]?.value ?? ''
-        return {
-          date: w.date,
-          maxC,
-          minC,
-          desc,
-          icon: iconForWeather(desc, parseInt(maxC)),
-          isToday: w.date === today,
-          tripLabel: TRIP_DAY_LABELS[w.date] ?? null,
-        }
-      })
-      setForecasts(parsed)
       const now = new Date(Date.now() + 7 * 3_600_000)
-      setFetchedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`)
-    } catch {}
+      const stamp = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`
+      writeCache(WEATHER_CACHE_KEY, { weatherArr, stamp })
+      setForecasts(parseWeather(weatherArr))
+      setFetchedAt(stamp)
+    } catch {
+      // network failed — keep whatever is already shown (cached or empty)
+    }
     setLoading(false)
   }, [])
 
   const { refreshing: pulling, pullY } = usePullToRefresh(fetchWeather)
 
   useEffect(() => {
+    // 1. Show cached data instantly (even if stale)
+    const cached = readCache<{ weatherArr: WeatherRaw[]; stamp: string }>(WEATHER_CACHE_KEY)
+    if (cached?.value?.weatherArr?.length) {
+      setForecasts(parseWeather(cached.value.weatherArr))
+      setFetchedAt(cached.value.stamp)
+      setLoading(false)
+      // 2. Fresh enough → skip network entirely
+      if (isFresh(cached.savedAt, WEATHER_TTL)) return
+    }
+    // 3. Stale or missing → refresh in background
     fetchWeather()
   }, [fetchWeather])
 
